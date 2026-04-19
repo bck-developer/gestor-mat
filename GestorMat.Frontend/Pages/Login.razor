@@ -1,0 +1,78 @@
+@page "/login"
+@using Microsoft.AspNetCore.Components.Forms
+@inject HttpClient Http
+@inject NavigationManager Navigation
+@inject Blazored.SessionStorage.ISessionStorageService SessionStorage
+
+<div class="login-wrapper">
+    <div class="login-card">
+        <h2>GestorMat</h2>
+
+        <EditForm Model="login" OnValidSubmit="ManageLogin">
+            <div class="form-group">
+                <label>Usuario</label>
+                <InputText class="form-control" @bind-Value="login.Username" />
+            </div>
+            <div class="form-group">
+                <label>Contraseña</label>
+                <InputText type="password" class="form-control" @bind-Value="login.Password" />
+            </div>
+            <button type="submit" class="btn btn-primary" style="width:100%; margin-top:0.5rem">
+                Ingresar
+            </button>
+        </EditForm>
+
+        @if (!string.IsNullOrEmpty(error))
+        {
+            <div class="alert alert-danger" style="margin-top:1rem">@error</div>
+        }
+    </div>
+</div>
+
+@code {
+    private string error = string.Empty;
+    private LoginModel login = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await SessionStorage.RemoveItemAsync("token");
+    }
+
+    private async Task ManageLogin()
+    {
+        try
+        {
+            var response = await Http.PostAsJsonAsync("api/auth/login", new
+            {
+                username = login.Username,
+                password = login.Password
+            });
+
+            if (response.IsSuccessStatusCode)
+            {
+                var result = await response.Content.ReadFromJsonAsync<LoginResponse>();
+                await SessionStorage.SetItemAsync("token", result!.Token);
+                Navigation.NavigateTo("/", true);
+            }
+            else
+            {
+                error = "Credenciales inválidas";
+            }
+        }
+        catch
+        {
+            error = "Error al conectar con la API";
+        }
+    }
+
+    public class LoginResponse
+    {
+        public string Token { get; set; } = string.Empty;
+    }
+
+    public class LoginModel
+    {
+        public string Username { get; set; } = string.Empty;
+        public string Password { get; set; } = string.Empty;
+    }
+}

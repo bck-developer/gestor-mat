@@ -1,0 +1,38 @@
+@page "/"
+@inject GestorMat.Frontend.Services.AuthService AuthService
+@inject NavigationManager Navigation
+
+@if (!cargando)
+{
+    <h1 class="page-title">Panel Principal</h1>
+
+    <div class="dashboard-grid">
+        <div class="dashboard-card" @onclick="IrGestionMateriales">
+            <div class="icon">📦</div>
+            <div class="label">Gestión de Materiales</div>
+        </div>
+   
+        <div class="dashboard-card" @onclick="IrUsuarios">
+            <div class="icon">👥</div>
+            <div class="label">Gestión de Usuarios</div>
+        </div>
+    </div>
+}
+
+@code {
+    private bool cargando = true;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var logueado = await AuthService.EstaLogueado();
+        if (!logueado)
+        {
+            Navigation.NavigateTo("/login", true);
+            return;
+        }
+        cargando = false;
+    }
+
+    void IrGestionMateriales() => Navigation.NavigateTo("/gestion-materiales");
+    void IrUsuarios() => Navigation.NavigateTo("/gestion-usuarios");
+}

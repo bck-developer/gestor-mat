@@ -1,0 +1,150 @@
+@page "/crear-deposito"
+@page "/editar-deposito/{Id:int}"
+@inject DepositoService DepositoService
+@inject NavigationManager Navigation
+
+<h1 class="page-title">@(Id == 0 ? "Crear Depósito" : "Editar Depósito")</h1>
+
+@if (cargando)
+{
+    <div class="loading">
+        <p>Cargando...</p>
+    </div>
+}
+else
+{
+    <div class="form-container">
+        <div class="card">
+            <div class="card-body">
+                <EditForm Model="modelo" OnSubmit="Guardar">
+                    <DataAnnotationsValidator />
+                    <ValidationSummary />
+
+                    <div class="form-group">
+                        <label for="codigoDeposito">Código de Depósito:</label>
+                        <InputText id="codigoDeposito" class="form-control" @bind-Value="modelo.CodigoDeposito" />
+                        <ValidationMessage For="@(() => modelo.CodigoDeposito)" class="text-danger" />
+                    </div>
+
+                    <div class="form-group">
+                        <label for="nombre">Nombre:</label>
+                        <InputText id="nombre" class="form-control" @bind-Value="modelo.Nombre" />
+                        <ValidationMessage For="@(() => modelo.Nombre)" class="text-danger" />
+                    </div>
+
+                    <div class="form-group">
+                        <label for="direccion">Dirección:</label>
+                        <InputText id="direccion" class="form-control" @bind-Value="modelo.Direccion" />
+                        <ValidationMessage For="@(() => modelo.Direccion)" class="text-danger" />
+                    </div>
+
+                    <div class="form-group">
+                        <label for="habilitado">
+                            <InputCheckbox id="habilitado" @bind-Value="modelo.Habilitado" />
+                            Habilitado
+                        </label>
+                    </div>
+
+                    <div class="button-group mt-3">
+                        <button type="submit" class="btn btn-primary">
+                            <span class="icon">💾</span> @(Id == 0 ? "Crear" : "Actualizar")
+                        </button>
+                        <button type="button" class="btn btn-secondary" @onclick="Volver">
+                            <span class="icon">⬅️</span> Volver
+                        </button>
+                    </div>
+
+                    @if (!string.IsNullOrEmpty(error))
+                    {
+                        <div class="alert alert-danger mt-3">
+                            @error
+                        </div>
+                    }
+
+                    @if (!string.IsNullOrEmpty(exito))
+                    {
+                        <div class="alert alert-success mt-3">
+                            @exito
+                        </div>
+                    }
+                </EditForm>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    [Parameter]
+    public int Id { get; set; }
+
+    private CrearDepositoDto modelo = new();
+    private bool cargando = false;
+    private string error = string.Empty;
+    private string exito = string.Empty;
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (Id != 0)
+        {
+            cargando = true;
+            try
+            {
+                DepositoDto? deposito = await DepositoService.ObtenerDepositoPorId(Id);
+                if (deposito != null)
+                {
+                    modelo = new CrearDepositoDto
+                    {
+                        CodigoDeposito = deposito.CodigoDeposito,
+                        Nombre = deposito.Nombre,
+                        Direccion = deposito.Direccion,
+                        Habilitado = deposito.Habilitado
+                    };
+                }
+                else
+                {
+                    error = "Depósito no encontrado";
+                }
+            }
+            catch (Exception ex)
+            {
+                error = $"Error al cargar el depósito: {ex.Message}";
+            }
+            finally
+            {
+                cargando = false;
+            }
+        }
+    }
+
+    private async Task Guardar()
+    {
+        error = string.Empty;
+        exito = string.Empty;
+
+        try
+        {
+            if (Id == 0)
+            {
+                await DepositoService.CrearDeposito(modelo);
+                exito = "Depósito creado correctamente";
+            }
+            else
+            {
+                await DepositoService.EditarDeposito(Id, modelo);
+                exito = "Depósito actualizado correctamente";
+            }
+
+            await Task.Delay(1500);
+            Navigation.NavigateTo("/depositos");
+        }
+        catch (Exception ex)
+        {
+            error = $"Error: {ex.Message}";
+        }
+    }
+
+    private void Volver()
+    {
+        Navigation.NavigateTo("/depositos");
+    }
+}

@@ -1,0 +1,224 @@
+@page "/usuarios"
+@inject AuthHttpClient AuthHttpClient
+@inject NavigationManager Navigation
+
+<h1 class="page-title">Usuarios</h1>
+
+<div class="button-group mb-3">
+    <button class="btn btn-primary" @onclick="IrCrear">
+        <span class="icon">➕</span> Nuevo Usuario
+    </button>
+    <button class="btn btn-secondary" @onclick="Recargar">
+        <span class="icon">🔄</span> Recargar
+    </button>
+</div>
+
+@if (cargando)
+{
+    <div class="loading">
+        <p>Cargando usuarios...</p>
+    </div>
+}
+else if (string.IsNullOrEmpty(error))
+{
+    @if (usuarios != null && usuarios.Count > 0)
+    {
+        <div class="table-responsive">
+            <table class="table table-striped table-hover">
+                <thead>
+                    <tr>
+                        <th>Username</th>
+                        <th>Nombre</th>
+                        <th>Email</th>
+                        <th>Rol</th>
+                        <th>Estado</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (UsuarioDto u in usuarios)
+                    {
+                        <tr>
+                            <td>@u.Username</td>
+                            <td>@u.Nombre</td>
+                            <td>@u.Mail</td>
+                            <td>@u.Rol</td>
+                            <td>
+                                <span class="badge @(u.Activo ? "badge-success" : "badge-danger")">
+                                    @(u.Activo ? "Habilitado" : "Inhabilitado")
+                                </span>
+                            </td>
+                            <td>
+                                <div class="action-buttons-inline">
+                                    <button class="btn btn-sm btn-warning" @onclick="() => Editar(u.Id)" title="Editar usuario">
+                                        ✏️ Editar
+                                    </button>
+                                    @if (u.Activo)
+                                    {
+                                        <button class="btn btn-sm btn-danger" @onclick="() => ConfirmarInhabilitar(u.Id, u.Username)" title="Inhabilitar acceso">
+                                            🔒 Inhabilitar
+                                        </button>
+                                    }
+                                    else
+                                    {
+                                        <button class="btn btn-sm btn-success" @onclick="() => Rehabilitar(u.Id)" title="Habilitar acceso">
+                                            🔓 Habilitar
+                                        </button>
+                                    }
+                                    <button class="btn btn-sm btn-danger btn-outline" @onclick="() => ConfirmarEliminar(u.Id, u.Username)" title="Eliminar definitivamente">
+                                        🗑️ Eliminar
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+    else
+    {
+        <div class="alert alert-info" role="alert">
+            <p>No hay usuarios registrados. <a href="/crear-usuario">Crea uno aquí</a></p>
+        </div>
+    }
+}
+else
+{
+    <div class="alert alert-danger" role="alert">
+        <p>@error</p>
+        <button class="btn btn-secondary" @onclick="Recargar">Reintentar</button>
+    </div>
+}
+
+@if (mostrarConfirmacion)
+{
+    <div class="modal-overlay" @onclick="CancelarConfirmacion">
+        <div class="modal-content" @onclick:stopPropagation>
+            <div class="modal-header">
+                <h5>Confirmar Acción</h5>
+                <button type="button" class="close" @onclick="CancelarConfirmacion">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p>@mensajeConfirmacion</p>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" @onclick="CancelarConfirmacion">Cancelar</button>
+                <button class="btn btn-danger" @onclick="ConfirmarAccion">Confirmar</button>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    private List<UsuarioDto> usuarios = new();
+    private bool cargando = true;
+    private string error = string.Empty;
+    private bool mostrarConfirmacion = false;
+    private int usuarioAActualizarId;
+    private string usuarioAActualizarUsername = string.Empty;
+    private string mensajeConfirmacion = string.Empty;
+    private string accionPendiente = string.Empty;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await Recargar();
+    }
+
+    private async Task Recargar()
+    {
+        cargando = true;
+        error = string.Empty;
+        usuarios = new();
+
+        try
+        {
+            HttpClient client = await AuthHttpClient.GetClient();
+            List<UsuarioDto>? data = await client.GetFromJsonAsync<List<UsuarioDto>>("api/usuarios");
+            usuarios = data ?? new List<UsuarioDto>();
+        }
+        catch (Exception ex)
+        {
+            error = $"Error al cargar usuarios: {ex.Message}";
+        }
+        finally
+        {
+            cargando = false;
+        }
+    }
+
+    private void IrCrear() => Navigation.NavigateTo("/crear-usuario");
+
+    private void Editar(int id) => Navigation.NavigateTo($"/editar-usuario/{id}");
+
+    private void ConfirmarEliminar(int id, string username)
+    {
+        usuarioAActualizarId = id;
+        usuarioAActualizarUsername = username;
+        mensajeConfirmacion = $"¿Estás seguro de que deseas eliminar el usuario \"{username}\"? Esta acción es irreversible.";
+        accionPendiente = "eliminar";
+        mostrarConfirmacion = true;
+    }
+
+    private void ConfirmarInhabilitar(int id, string username)
+    {
+        usuarioAActualizarId = id;
+        usuarioAActualizarUsername = username;
+        mensajeConfirmacion = $"¿Estás seguro de que deseas inhabilitar al usuario \"{username}\"?";
+        accionPendiente = "inhabilitar";
+        mostrarConfirmacion = true;
+    }
+
+    private void CancelarConfirmacion()
+    {
+        mostrarConfirmacion = false;
+    }
+
+    private async Task ConfirmarAccion()
+    {
+        try
+        {
+            HttpClient client = await AuthHttpClient.GetClient();
+
+            if (accionPendiente == "eliminar")
+            {
+                await client.DeleteAsync($"api/usuarios/{usuarioAActualizarId}");
+            }
+            else if (accionPendiente == "inhabilitar")
+            {
+                await client.PatchAsync($"api/usuarios/{usuarioAActualizarId}/inhabilitar", null);
+            }
+
+            mostrarConfirmacion = false;
+            await Recargar();
+        }
+        catch (Exception ex)
+        {
+            error = $"Error: {ex.Message}";
+        }
+    }
+
+    private async Task Rehabilitar(int id)
+    {
+        try
+        {
+            HttpClient client = await AuthHttpClient.GetClient();
+            await client.PatchAsync($"api/usuarios/{id}/rehabilitar", null);
+            await Recargar();
+        }
+        catch (Exception ex)
+        {
+            error = $"Error al habilitar usuario: {ex.Message}";
+        }
+    }
+
+    public class UsuarioDto
+    {
+        public int Id { get; set; }
+        public string Username { get; set; } = string.Empty;
+        public string Nombre { get; set; } = string.Empty;
+        public string Mail { get; set; } = string.Empty;
+        public string Rol { get; set; } = string.Empty;
+        public bool Activo { get; set; }
+    }
+}

@@ -1,0 +1,54 @@
+@page "/sin-stock"
+@inject AuthHttpClient AuthHttpClient
+
+<h1 class="page-title">Materiales</h1>
+
+@if (materiales == null)
+{
+    <p class="loading-text">Cargando...</p>
+}
+else if (!materiales.Any())
+{
+    <div class="empty-state">No hay materiales registrados.</div>
+}
+else
+{
+    <div class="card" style="padding:0">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Nombre</th>
+                    <th>Precio</th>
+                    <th>Unidad</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var m in materiales)
+                {
+                    <tr>
+                        <td>@m.Nombre</td>
+                        <td>$@m.Precio.ToString("N2")</td>
+                        <td>@m.UnidadMedida</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}
+
+@code {
+    private List<MaterialDto>? materiales;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            var client = await AuthHttpClient.GetClient();
+            materiales = await client.GetFromJsonAsync<List<MaterialDto>>("api/material") ?? new();
+        }
+        catch
+        {
+            materiales = new();
+        }
+    }
+}

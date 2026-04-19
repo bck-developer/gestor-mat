@@ -1,0 +1,158 @@
+@page "/materiales"
+@inject AuthHttpClient AuthHttpClient
+@inject MaterialService MaterialService
+@inject NavigationManager Navigation
+
+<h1 class="page-title">Materiales</h1>
+
+<div class="button-group mb-3">
+    <button class="btn btn-primary" @onclick="IrCrear">
+        <span class="icon">➕</span> Nuevo Material
+    </button>
+    <button class="btn btn-secondary" @onclick="Recargar">
+        <span class="icon">🔄</span> Recargar
+    </button>
+</div>
+
+@if (cargando)
+{
+    <div class="loading">
+        <p>Cargando materiales...</p>
+    </div>
+}
+else if (string.IsNullOrEmpty(error))
+{
+    @if (materiales != null && materiales.Count > 0)
+    {
+        <div class="table-responsive">
+            <table class="table table-striped table-hover">
+                <thead>
+                    <tr>
+                        <th>Nombre</th>
+                        <th>Precio</th>
+                        <th>Unidad</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (MaterialDto mat in materiales)
+                    {
+                        <tr>
+                            <td>@mat.Nombre</td>
+                            <td>$@mat.Precio.ToString("N2")</td>
+                            <td>@mat.UnidadMedida</td>
+                            <td>
+                                <div class="action-buttons-inline">
+                                    <button class="btn btn-sm btn-warning" @onclick="() => IrEditar(mat.Id)" title="Editar material">
+                                        ✏️ Editar
+                                    </button>
+                                    <button class="btn btn-sm btn-danger btn-outline" @onclick="() => ConfirmarEliminar(mat.Id, mat.Nombre)" title="Eliminar definitivamente">
+                                        🗑️ Eliminar
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+    else
+    {
+        <div class="alert alert-info" role="alert">
+            <p>No hay materiales registrados. <a href="/crear-material">Crea uno aquí</a></p>
+        </div>
+    }
+}
+else
+{
+    <div class="alert alert-danger" role="alert">
+        <p>@error</p>
+        <button class="btn btn-secondary" @onclick="Recargar">Reintentar</button>
+    </div>
+}
+
+@if (mostrarConfirmacion)
+{
+    <div class="modal-overlay" @onclick="CancelarEliminar">
+        <div class="modal-content" @onclick:stopPropagation>
+            <div class="modal-header">
+                <h5>Confirmar Eliminación</h5>
+                <button type="button" class="close" @onclick="CancelarEliminar">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p>¿Estás seguro de que deseas eliminar el material "<strong>@materialAEliminarNombre</strong>"?</p>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" @onclick="CancelarEliminar">Cancelar</button>
+                <button class="btn btn-danger" @onclick="EliminarConfirmado">Eliminar</button>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    private List<MaterialDto> materiales = new();
+    private bool cargando = true;
+    private string error = string.Empty;
+    private bool mostrarConfirmacion = false;
+    private int materialAEliminarId;
+    private string materialAEliminarNombre = string.Empty;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await Recargar();
+    }
+
+    private async Task Recargar()
+    {
+        cargando = true;
+        error = string.Empty;
+        materiales = new();
+
+        try
+        {
+            List<MaterialDto>? data = await MaterialService.ObtenerMateriales();
+            materiales = data ?? new List<MaterialDto>();
+        }
+        catch (Exception ex)
+        {
+            error = $"Error al cargar materiales: {ex.Message}";
+        }
+        finally
+        {
+            cargando = false;
+        }
+    }
+
+    private void IrCrear() => Navigation.NavigateTo("/crear-material");
+
+    private void IrEditar(int id) => Navigation.NavigateTo($"/editar-material/{id}");
+
+    private void ConfirmarEliminar(int id, string nombre)
+    {
+        materialAEliminarId = id;
+        materialAEliminarNombre = nombre;
+        mostrarConfirmacion = true;
+    }
+
+    private void CancelarEliminar()
+    {
+        mostrarConfirmacion = false;
+    }
+
+    private async Task EliminarConfirmado()
+    {
+        try
+        {
+            HttpClient client = await AuthHttpClient.GetClient();
+            await client.DeleteAsync($"api/material/{materialAEliminarId}");
+            mostrarConfirmacion = false;
+            await Recargar();
+        }
+        catch (Exception ex)
+        {
+            error = $"Error al eliminar material: {ex.Message}";
+        }
+    }
+}

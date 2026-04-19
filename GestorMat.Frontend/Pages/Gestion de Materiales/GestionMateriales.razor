@@ -1,0 +1,25 @@
+@page "/gestion-materiales"
+@inject NavigationManager Navigation
+
+<h1 class="page-title">Gestión de Materiales</h1>
+
+<div class="dashboard-grid">
+    <div class="dashboard-card" @onclick="IrMateriales">
+        <div class="icon">📦</div>
+        <div class="label">ABM Materiales</div>
+    </div>
+    <div class="dashboard-card" @onclick="IrDepositos">
+        <div class="icon">🏭</div>
+        <div class="label">Gestión de Depósitos</div>
+    </div>
+    <div class="dashboard-card" @onclick="IrUnidades">
+        <div class="icon">📏</div>
+        <div class="label">Unidades de Medida</div>
+    </div>
+</div>
+
+@code {
+    void IrMateriales() => Navigation.NavigateTo("/materiales");
+    void IrDepositos() => Navigation.NavigateTo("/depositos");
+    void IrUnidades() => Navigation.NavigateTo("/unidades");
+}

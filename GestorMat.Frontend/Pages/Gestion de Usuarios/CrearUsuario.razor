@@ -1,0 +1,221 @@
+﻿@page "/crear-usuario"
+@page "/editar-usuario/{Id:int}"
+
+@inject GestorMat.Frontend.Services.AuthHttpClient AuthHttpClient
+@inject NavigationManager Navigation
+
+<h1 class="page-title">@(Id == 0 ? "Crear Usuario" : "Editar Usuario")</h1>
+
+@if (cargando)
+{
+    <div class="loading">
+        <p>Cargando...</p>
+    </div>
+}
+else
+{
+    <div class="form-container">
+        <div class="card">
+            <div class="card-body">
+                <EditForm Model="modelo" OnSubmit="Guardar">
+                    <DataAnnotationsValidator />
+                    <ValidationSummary />
+
+                    <div class="form-group">
+                        <label for="username">Username:</label>
+                        <InputText id="username" class="form-control" @bind-Value="modelo.Username" disabled="@(Id != 0)" />
+                        <ValidationMessage For="@(() => modelo.Username)" class="text-danger" />
+                    </div>
+
+                    <div class="form-group">
+                        <label for="nombre">Nombre completo:</label>
+                        <InputText id="nombre" class="form-control" @bind-Value="modelo.Nombre" />
+                        <ValidationMessage For="@(() => modelo.Nombre)" class="text-danger" />
+                    </div>
+
+                    <div class="form-group">
+                        <label for="mail">Email:</label>
+                        <InputText id="mail" class="form-control" type="email" @bind-Value="modelo.Mail" />
+                        <ValidationMessage For="@(() => modelo.Mail)" class="text-danger" />
+                    </div>
+
+                    <div class="form-group">
+                        <label for="password">Contraseña @(Id != 0 ? "(opcional)" : ""):</label>
+                        <InputText id="password" class="form-control" type="password" @bind-Value="modelo.Password" />
+                        <ValidationMessage For="@(() => modelo.Password)" class="text-danger" />
+                    </div>
+
+                    <div class="form-group">
+                        <label for="idRol">Rol:</label>
+                        <InputSelect id="idRol" class="form-control" @bind-Value="modelo.IdRol">
+                            <option value="0">-- Seleccionar Rol --</option>
+                            @foreach (var rol in roles)
+                            {
+                                <option value="@rol.IdRol">@rol.RolName</option>
+                            }
+                        </InputSelect>
+                        <ValidationMessage For="@(() => modelo.IdRol)" class="text-danger" />
+                    </div>
+
+                    <div class="form-group">
+                        <label for="activo">
+                            <InputCheckbox id="activo" @bind-Value="modelo.Activo" />
+                            Activo
+                        </label>
+                    </div>
+
+                    <div class="button-group mt-3">
+                        <button type="submit" class="btn btn-primary">
+                            <span class="icon">💾</span> @(Id == 0 ? "Crear" : "Actualizar")
+                        </button>
+                        <button type="button" class="btn btn-secondary" @onclick="Volver">
+                            <span class="icon">⬅️</span> Volver
+                        </button>
+                    </div>
+
+                    @if (!string.IsNullOrEmpty(error))
+                    {
+                        <div class="alert alert-danger mt-3">
+                            @error
+                        </div>
+                    }
+
+                    @if (!string.IsNullOrEmpty(exito))
+                    {
+                        <div class="alert alert-success mt-3">
+                            @exito
+                        </div>
+                    }
+                </EditForm>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    [Parameter]
+    public int Id { get; set; }
+
+    private CrearUsuarioDto modelo = new();
+    private List<RolDto> roles = new();
+    private bool cargando = false;
+    private string error = string.Empty;
+    private string exito = string.Empty;
+
+    protected override async Task OnInitializedAsync()
+    {
+        cargando = true;
+        try
+        {
+            var client = await AuthHttpClient.GetClient();
+
+            // Cargar roles
+            roles = await client.GetFromJsonAsync<List<RolDto>>("api/roles") ?? new();
+
+            // Si es edición → traer usuario
+            if (Id != 0)
+            {
+                var data = await client.GetFromJsonAsync<UsuarioDto>($"api/usuarios/{Id}");
+                if (data != null)
+                {
+                    modelo = new CrearUsuarioDto
+                    {
+                        Username = data.Username,
+                        Nombre = data.Nombre,
+                        Mail = data.Mail,
+                        IdRol = data.IdRol,
+                        Activo = data.Activo
+                    };
+                }
+                else
+                {
+                    error = "Usuario no encontrado";
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            error = $"Error al cargar datos: {ex.Message}";
+        }
+        finally
+        {
+            cargando = false;
+        }
+    }
+
+    private async Task Guardar()
+    {
+        error = string.Empty;
+        exito = string.Empty;
+
+        try
+        {
+            var client = await AuthHttpClient.GetClient();
+            HttpResponseMessage response;
+
+            if (Id == 0)
+            {
+                response = await client.PostAsJsonAsync("api/usuarios", modelo);
+                if (response.IsSuccessStatusCode)
+                {
+                    exito = "Usuario creado correctamente";
+                }
+            }
+            else
+            {
+                response = await client.PutAsJsonAsync($"api/usuarios/{Id}", modelo);
+                if (response.IsSuccessStatusCode)
+                {
+                    exito = "Usuario actualizado correctamente";
+                }
+            }
+
+            if (response.IsSuccessStatusCode)
+            {
+                await Task.Delay(1500);
+                Navigation.NavigateTo("/usuarios");
+            }
+            else
+            {
+                var detalle = await response.Content.ReadAsStringAsync();
+                error = $"Error: {detalle}";
+            }
+        }
+        catch (Exception ex)
+        {
+            error = $"Error: {ex.Message}";
+        }
+    }
+
+    private void Volver()
+    {
+        Navigation.NavigateTo("/usuarios");
+    }
+
+    // DTOs
+    public class CrearUsuarioDto
+    {
+        public string Username { get; set; } = "";
+        public string Password { get; set; } = "";
+        public string Nombre { get; set; } = "";
+        public string Mail { get; set; } = "";
+        public int IdRol { get; set; }
+        public bool Activo { get; set; } = true;
+    }
+
+    public class UsuarioDto
+    {
+        public string Username { get; set; } = "";
+        public string Nombre { get; set; } = "";
+        public string Mail { get; set; } = "";
+        public int IdRol { get; set; }
+        public bool Activo { get; set; }
+    }
+
+    public class RolDto
+    {
+        public int IdRol { get; set; }
+        public string RolName { get; set; } = "";
+    }
+}
+
