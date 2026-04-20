@@ -39,11 +39,14 @@ else
                         <ValidationMessage For="@(() => modelo.Mail)" class="text-danger" />
                     </div>
 
-                    <div class="form-group">
-                        <label for="password">Contraseña @(Id != 0 ? "(opcional)" : ""):</label>
-                        <InputText id="password" class="form-control" type="password" @bind-Value="modelo.Password" />
-                        <ValidationMessage For="@(() => modelo.Password)" class="text-danger" />
-                    </div>
+                    @if (Id == 0)
+                    {
+                        <div class="form-group">
+                            <label for="password">Contraseña @(Id != 0 ? "(opcional)" : ""):</label>
+                            <InputText id="password" class="form-control" type="password" @bind-Value="modelo.Password" />
+                            <ValidationMessage For="@(() => modelo.Password)" class="text-danger" />
+                        </div>
+                    }
 
                     <div class="form-group">
                         <label for="idRol">Rol:</label>
@@ -115,7 +118,7 @@ else
             // Si es edición → traer usuario
             if (Id != 0)
             {
-                var data = await client.GetFromJsonAsync<UsuarioDto>($"api/usuarios/{Id}");
+                UsuarioDto? data = await client.GetFromJsonAsync<UsuarioDto>($"api/usuarios/{Id}");
                 if (data != null)
                 {
                     modelo = new CrearUsuarioDto
@@ -150,7 +153,7 @@ else
 
         try
         {
-            var client = await AuthHttpClient.GetClient();
+            HttpClient client = await AuthHttpClient.GetClient();
             HttpResponseMessage response;
 
             if (Id == 0)
@@ -191,31 +194,4 @@ else
     {
         Navigation.NavigateTo("/usuarios");
     }
-
-    // DTOs
-    public class CrearUsuarioDto
-    {
-        public string Username { get; set; } = "";
-        public string Password { get; set; } = "";
-        public string Nombre { get; set; } = "";
-        public string Mail { get; set; } = "";
-        public int IdRol { get; set; }
-        public bool Activo { get; set; } = true;
-    }
-
-    public class UsuarioDto
-    {
-        public string Username { get; set; } = "";
-        public string Nombre { get; set; } = "";
-        public string Mail { get; set; } = "";
-        public int IdRol { get; set; }
-        public bool Activo { get; set; }
-    }
-
-    public class RolDto
-    {
-        public int IdRol { get; set; }
-        public string RolName { get; set; } = "";
-    }
 }
-

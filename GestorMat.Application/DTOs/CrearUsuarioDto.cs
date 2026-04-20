@@ -7,4 +7,5 @@ public class CrearUsuarioDto
     public string Nombre { get; set; } = string.Empty;
     public string Mail { get; set; } = string.Empty;
     public int IdRol { get; set; }
+    public bool Activo { get; set; }
 }

@@ -10,6 +10,5 @@ public interface IUsuarioRepository
     Task<List<Usuario>> ObtenerTodosAsync();
     Task<Usuario?> ObtenerPorIdAsync(int id);
     Task EditarAsync(Usuario usuario);
-
     Task EliminarFisicoAsync(Usuario usuario);
 }

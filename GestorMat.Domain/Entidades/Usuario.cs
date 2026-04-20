@@ -19,7 +19,7 @@ public class Usuario
 
     private Usuario() { }
 
-    public Usuario(string username, string passwordHash, string nombre, string mail, int idRol)
+    public Usuario(string username, string passwordHash, string nombre, string mail, int idRol, bool activo)
     {
         Username = username;
         PasswordHash = passwordHash;
@@ -27,10 +27,10 @@ public class Usuario
         Mail = mail;
         IdRol = idRol;
         FechaAlta = DateTime.UtcNow;
-        Activo = true;
+        Activo = activo;
     }
 
-    public void ActualizarDatos(string username, string nombre, string mail, int idRol)
+    public void ActualizarDatos(string username, string nombre, string mail, int idRol, bool activo)
     {
         if (string.IsNullOrWhiteSpace(username))
             throw new Exception("Username inválido");
@@ -48,6 +48,7 @@ public class Usuario
         Nombre = nombre;
         Mail = mail;
         IdRol = idRol;
+        Activo = activo;
     }
 
     public void CambiarPassword(string passwordHash)

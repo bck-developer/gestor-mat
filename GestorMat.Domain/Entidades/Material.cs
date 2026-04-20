@@ -5,10 +5,13 @@ public class Material
     public int Id_Material { get; private set; }
     public string Nombre { get; init; }
     public decimal Precio { get; init; }
-
     public bool Activo { get; init; }
     public int IdUnidadMedida { get; init; }
     public UnidadMedida UnidadMedida { get; init; }
+    public string Descripcion { get; init; }
+    
+    public bool PermiteStockNegativo { get; init; }
+    public double StockMinimo { get; init; }
 
     public Material(string nombre, decimal precio, int idUnidadMedida)
     {

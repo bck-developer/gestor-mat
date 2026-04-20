@@ -6,11 +6,8 @@ namespace GestorMat.Application.Servicios;
 
 public class UsuarioService(IUsuarioRepository repo, IPasswordHasher hasher)
 {
-
-    // =========================
-    // CREAR
-    // =========================
-    public async Task CrearAsync(CrearUsuarioDto dto)
+    // 1 - CREAR
+    public async Task CrearAsyncService(CrearUsuarioDto dto)
     {
         if (string.IsNullOrWhiteSpace(dto.Password))
         {
@@ -29,16 +26,15 @@ public class UsuarioService(IUsuarioRepository repo, IPasswordHasher hasher)
             hash,
             dto.Nombre,
             dto.Mail,
-            dto.IdRol
+            dto.IdRol,
+            dto.Activo
         );
 
         await repo.AgregarAsync(usuario);
     }
 
-    // =========================
-    // LISTAR
-    // =========================
-    public async Task<List<UsuarioDto>> ObtenerAsync()
+    // 2 - OBTENER TODOS
+    public async Task<List<UsuarioDto>> ObtenerTodosAsyncService()
     {
         IEnumerable<Usuario> usuarios = await repo.ObtenerTodosAsync();
 
@@ -53,18 +49,14 @@ public class UsuarioService(IUsuarioRepository repo, IPasswordHasher hasher)
         }).ToList();
     }
 
-    // =========================
-    // OBTENER POR ID
-    // =========================
-    public async Task<Usuario?> ObtenerEntidadPorIdAsync(int id)
+    // 3 - OBTENER POR ID
+    public async Task<Usuario?> ObtenerPorIdAsyncService(int id)
     {
         return await repo.ObtenerPorIdAsync(id);
     }
 
-    // =========================
-    // EDITAR
-    // =========================
-    public async Task EditarAsync(int id, CrearUsuarioDto dto)
+    // 4- ACTUALIZAR
+    public async Task ActualizarAsyncService(int id, CrearUsuarioDto dto)
     {
         Usuario? usuario = await repo.ObtenerPorIdAsync(id);
 
@@ -73,7 +65,7 @@ public class UsuarioService(IUsuarioRepository repo, IPasswordHasher hasher)
             throw new Exception("Usuario no encontrado");
         }
 
-        usuario.ActualizarDatos(dto.Username, dto.Nombre, dto.Mail, dto.IdRol);
+        usuario.ActualizarDatos(dto.Username, dto.Nombre, dto.Mail, dto.IdRol, dto.Activo);
 
         if (!string.IsNullOrWhiteSpace(dto.Password))
         {
@@ -84,10 +76,8 @@ public class UsuarioService(IUsuarioRepository repo, IPasswordHasher hasher)
         await repo.EditarAsync(usuario);
     }
 
-    // =========================
-    // ELIMINAR (soft delete)
-    // =========================
-    public async Task EliminarAsync(int id)
+    // 5 - ELIMINAR FISICO 
+    public async Task EliminarFisicoAsync(int id)
     {
         Usuario? usuario = await repo.ObtenerPorIdAsync(id);
 
@@ -96,15 +86,13 @@ public class UsuarioService(IUsuarioRepository repo, IPasswordHasher hasher)
             throw new Exception("Usuario no encontrado");
         }
 
-        usuario.Desactivar();
-
-        await repo.EditarAsync(usuario);
+        await repo.EliminarFisicoAsync(usuario);
     }
 
-    // =========================
+    // ADICIONALES
+
     // INHABILITAR
-    // =========================
-    public async Task InhabilitarAsync(int id)
+    public async Task InhabilitarAsyncService(int id)
     {
         Usuario? usuario = await repo.ObtenerPorIdAsync(id);
 
@@ -118,10 +106,8 @@ public class UsuarioService(IUsuarioRepository repo, IPasswordHasher hasher)
         await repo.EditarAsync(usuario);
     }
 
-    // =========================
     // REHABILITAR
-    // =========================
-    public async Task RehabilitarAsync(int id)
+    public async Task RehabilitarAsyncService(int id)
     {
         Usuario? usuario = await repo.ObtenerPorIdAsync(id);
 
@@ -133,20 +119,5 @@ public class UsuarioService(IUsuarioRepository repo, IPasswordHasher hasher)
         usuario.Activar();
 
         await repo.EditarAsync(usuario);
-    }
-
-    // =========================
-    // ELIMINAR FISICO (OPCIONAL)
-    // =========================
-    public async Task EliminarFisicoAsync(int id)
-    {
-        Usuario? usuario = await repo.ObtenerPorIdAsync(id);
-
-        if (usuario == null)
-        {
-            throw new Exception("Usuario no encontrado");
-        }
-
-        await repo.EliminarFisicoAsync(usuario);
     }
 }
