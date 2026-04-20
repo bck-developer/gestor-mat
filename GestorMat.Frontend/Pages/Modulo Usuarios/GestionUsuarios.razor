@@ -8,8 +8,14 @@
         <div class="icon">👤</div>
         <div class="label">ABM Usuarios</div>
     </div>
+    <div class="dashboard-card" @onclick="IrRoles">
+        <div class="icon">👤👤👤</div>
+        <div class="label">ABM Roles</div>
+    </div>
 </div>
+
 
 @code {
     void IrUsuarios() => Navigation.NavigateTo("/usuarios");
+    void IrRoles() => Navigation.NavigateTo("/roles");
 }

@@ -123,9 +123,8 @@
 
         // Gestión - Dashboards
         if (ruta.Contains("gestion-materiales")) return "🏠 Inicio > 📦 Gestión de Materiales";
-        if (ruta.Contains("gestion-unidades")) return "🏠 Inicio > 📏 Gestión de Unidades";
-        if (ruta.Contains("gestion-usuarios")) return "🏠 Inicio > 👥 Gestión de Usuarios";
-        if (ruta.Contains("gestion-depositos")) return "🏠 Inicio > 🏭 Gestión de Depósitos";
+          if (ruta.Contains("gestion-usuarios")) return "🏠 Inicio > 👥 Gestión de Usuarios";
+
 
         // Materiales
         if (ruta.Contains("crear-material")) return "🏠 Inicio > 📦 Materiales > ➕ Crear";
@@ -137,15 +136,20 @@
         if (ruta.Contains("editar-unidad")) return "🏠 Inicio > 📏 Unidades > ✏️ Editar";
         if (ruta.Contains("unidades")) return "🏠 Inicio > 📏 Unidades";
 
+        // Depósitos
+        if (ruta.Contains("crear-deposito")) return "🏠 Inicio > 🏭 Depósitos > ➕ Nuevo";
+        if (ruta.Contains("editar-deposito")) return "🏠 Inicio > 🏭 Depósitos > ✏️ Editar";
+        if (ruta.Contains("depositos")) return "🏠 Inicio > 🏭 Depósitos";
+
         // Usuarios
         if (ruta.Contains("crear-usuario")) return "🏠 Inicio > 👥 Usuarios > ➕ Nuevo";
         if (ruta.Contains("editar-usuario")) return "🏠 Inicio > 👥 Usuarios > ✏️ Editar";
         if (ruta.Contains("usuarios")) return "🏠 Inicio > 👥 Usuarios";
 
-        // Depósitos
-        if (ruta.Contains("crear-deposito")) return "🏠 Inicio > 🏭 Depósitos > ➕ Nuevo";
-        if (ruta.Contains("editar-deposito")) return "🏠 Inicio > 🏭 Depósitos > ✏️ Editar";
-        if (ruta.Contains("depositos")) return "🏠 Inicio > 🏭 Depósitos";
+        // Usuarios
+        if (ruta.Contains("crear-rol")) return "🏠 Inicio > 👥👥👥 Roles > ➕ Nuevo";
+        if (ruta.Contains("editar-rol")) return "🏠 Inicio > 👥👥👥 Roles > ✏️ Editar";
+        if (ruta.Contains("roles")) return "🏠 Inicio > 👥👥👥 Roles";
 
         // Otros
         if (ruta.Contains("login")) return "🔐 Login";
