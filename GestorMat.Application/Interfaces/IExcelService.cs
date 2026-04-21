@@ -1,7 +1,10 @@
-﻿namespace GestorMat.Application.Interfaces;
+﻿using GestorMat.Application.DTOs.Material;
+
+namespace GestorMat.Application.Interfaces;
 
 public interface IExcelService
 {
     byte[] GenerarPlantillaMateriales(List<string> unidades);
-    List<Dictionary<string, string>> LeerExcel(Stream stream);
+
+    List<MaterialExcelRowDto> LeerExcelMateriales(Stream stream);
 }

@@ -7,29 +7,29 @@
 
 <div class="button-group mb-3">
     <button class="btn btn-primary" @onclick="IrCrear">
-        <span class="icon">➕</span> Nuevo Material
-    </button>
-    <button class="btn btn-secondary" @onclick="Recargar">
-        <span class="icon">🔄</span> Recargar
-    </button>
-    <button class="btn btn-success" @onclick="DescargarPlantilla" disabled="@descargando">
-        @if (descargando)
-        {
-            <span>Descargando...</span>
-        }
-        else
-        {
-            <span>📥 Plantilla Excel</span>
-        }
+        ➕ Nuevo Material
     </button>
 
-    <div class="file-upload-container">
-        <label class="btn btn-outline-primary">
-            📤 Cargar Excel
-            <InputFile OnChange="SubirExcel" hidden />
-        </label>
-    </div>
+    <button class="btn btn-secondary" @onclick="Recargar">
+        🔄 Recargar
+    </button>
+
+    <button class="btn btn-success" @onclick="DescargarPlantilla" disabled="@descargando">
+        @(descargando ? "Descargando..." : "📥 Plantilla Excel")
+    </button>
+
+    <label class="btn btn-outline-primary">
+        📤 Cargar Excel
+        <InputFile OnChange="SubirExcel" hidden />
+    </label>
 </div>
+
+@if (!string.IsNullOrEmpty(mensaje))
+{
+    <div class="alert @(tipoMensaje == "success" ? "alert-success" : "alert-danger")">
+        @((MarkupString)mensaje)
+    </div>
+}
 
 @if (cargando)
 {
@@ -39,26 +39,16 @@
 }
 else if (string.IsNullOrEmpty(error))
 {
-    @if (materiales != null && materiales.Count > 0)
+    @if (cargandoArchivo)
     {
-        @if (!string.IsNullOrEmpty(mensaje))
-        {
-            <div class="alert @(tipoMensaje == "success" ? "alert-success" : "alert-danger")">
-                @mensaje
-            </div>
-        }
+        <div class="loading mt-2">
+            <p>Procesando archivo...</p>
+        </div>
+    }
 
-        @if (cargandoArchivo)
-        {
-            <div class="loading mt-2">
-                <p>Procesando archivo...</p>
-            </div>
-        }
-
+    @if (materiales.Any())
+    {
         <div class="table-responsive">
-
-
-
             <table class="table table-striped table-hover">
                 <thead>
                     <tr>
@@ -129,18 +119,15 @@ else
     private List<MaterialDto> materiales = new();
     private bool cargando = true;
     private string error = string.Empty;
+    private bool descargando = false;
+    private bool cargandoArchivo = false;
+    private string mensaje = string.Empty;
+    private string tipoMensaje = string.Empty;
     private bool mostrarConfirmacion = false;
     private int materialAEliminarId;
     private string materialAEliminarNombre = string.Empty;
-    private bool descargando = false;
-    private bool cargandoArchivo = false;
-    private string mensaje = "";
-    private string tipoMensaje = ""; // success / error
 
-    protected override async Task OnInitializedAsync()
-    {
-        await Recargar();
-    }
+    protected override async Task OnInitializedAsync() => await Recargar();
 
     private async Task Recargar()
     {
@@ -165,7 +152,6 @@ else
     }
 
     private void IrCrear() => Navigation.NavigateTo("/crear-material");
-
     private void IrEditar(int id) => Navigation.NavigateTo($"/editar-material/{id}");
 
     private void ConfirmarEliminar(int id, string nombre)
@@ -175,10 +161,7 @@ else
         mostrarConfirmacion = true;
     }
 
-    private void CancelarEliminar()
-    {
-        mostrarConfirmacion = false;
-    }
+    private void CancelarEliminar() => mostrarConfirmacion = false;
 
     private async Task EliminarConfirmado()
     {
@@ -201,18 +184,17 @@ else
         {
             descargando = true;
 
-            var client = await AuthHttpClient.GetClient();
-
-            var response = await client.GetAsync("api/material/plantilla", HttpCompletionOption.ResponseHeadersRead);
+            HttpClient client = await AuthHttpClient.GetClient();
+            HttpResponseMessage response = await client.GetAsync("api/material/plantilla", HttpCompletionOption.ResponseHeadersRead);
 
             response.EnsureSuccessStatusCode();
 
-            var stream = await response.Content.ReadAsStreamAsync();
+            Stream stream = await response.Content.ReadAsStreamAsync();
 
-            using var ms = new MemoryStream();
+            using MemoryStream ms = new MemoryStream();
             await stream.CopyToAsync(ms);
 
-            var module = await JS.InvokeAsync<IJSObjectReference>("import", "./js/download.js");
+            IJSObjectReference module = await JS.InvokeAsync<IJSObjectReference>("import", "./js/download.js");
 
             await module.InvokeVoidAsync(
                 "downloadFileFromStream",
@@ -222,7 +204,8 @@ else
         }
         catch (Exception ex)
         {
-            error = $"Error al descargar: {ex.Message}";
+            mensaje = $"Error al descargar: {ex.Message}";
+            tipoMensaje = "error";
         }
         finally
         {
@@ -232,8 +215,7 @@ else
 
     private async Task SubirExcel(InputFileChangeEventArgs e)
     {
-        mensaje = "";
-        tipoMensaje = "";
+        mensaje = string.Empty;
 
         try
         {
@@ -241,48 +223,45 @@ else
 
             if (!file.Name.EndsWith(".xlsx"))
             {
-                mensaje = "El archivo debe ser un Excel (.xlsx)";
+                mensaje = "Archivo inválido. Solo .xlsx";
                 tipoMensaje = "error";
                 return;
             }
 
             cargandoArchivo = true;
 
-            var content = new MultipartFormDataContent();
+            MultipartFormDataContent content = new MultipartFormDataContent();
             content.Add(new StreamContent(file.OpenReadStream()), "file", file.Name);
 
-            var client = await AuthHttpClient.GetClient();
-            var response = await client.PostAsync("api/material/importar", content);
+            HttpClient client = await AuthHttpClient.GetClient();
+            HttpResponseMessage response = await client.PostAsync("api/material/importar", content);
 
-            var result = await response.Content.ReadFromJsonAsync<ResultadoImportacionDto>();
+            MaterialImportResultDto? result = await response.Content.ReadFromJsonAsync<MaterialImportResultDto>();
 
             if (result != null)
             {
-                mensaje = $"✔ {result.RegistrosInsertados} registros cargados | ❌ {result.Errores.Count} errores";
-                tipoMensaje = result.Errores.Any() ? "error" : "success";
+                mensaje = $"✔ {result.Exitosos} cargados | ❌ {result.Fallidos} errores";
 
                 if (result.Errores.Any())
                 {
-                    mensaje += "\n\n" + string.Join("\n", result.Errores.Take(5));
+                    mensaje += "<br/><br/>";
+                    mensaje += string.Join("<br/>",
+                        result.Errores.Select(e => $"Fila {e.Fila}: {e.Mensaje}"));
                 }
+
+                tipoMensaje = result.Fallidos > 0 ? "error" : "success";
 
                 await Recargar();
             }
         }
         catch (Exception ex)
         {
-            mensaje = $"Error: {ex.Message}";
+            mensaje = ex.Message;
             tipoMensaje = "error";
         }
         finally
         {
             cargandoArchivo = false;
         }
-    }
-
-    public class ResultadoImportacionDto
-    {
-        public List<string> Errores { get; set; } = new();
-        public int RegistrosInsertados { get; set; }
     }
 }

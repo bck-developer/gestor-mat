@@ -15,67 +15,100 @@ public class MaterialImportService
         _unidadRepo = unidadRepo;
     }
 
-    public async Task<ResultadoImportacionDto> ImportarAsync(List<ImportarMaterialDto> items)
+    public async Task<MaterialImportResultDto> ImportarAsync(List<MaterialExcelRowDto> filas)
     {
-        var resultado = new ResultadoImportacionDto();
-        var unidades = await _unidadRepo.ObtenerTodosAsync();
+        var resultado = new MaterialImportResultDto();
 
-        var unidadesDict = unidades.ToDictionary(u => u.Nombre.ToLower());
+        var unidades = (await _unidadRepo.ObtenerTodosAsync())
+            .ToDictionary(u => u.Nombre.ToLower());
 
-        var materiales = new List<Material>();
-
-        int fila = 2;
-
-        foreach (var item in items)
+        foreach (var row in filas)
         {
             try
             {
-                if (string.IsNullOrWhiteSpace(item.Nombre))
-                    throw new Exception("Nombre vacío");
+                var dto = Mapear(row, unidades);
 
-                if (!unidadesDict.ContainsKey(item.UnidadMedida.ToLower()))
-                    throw new Exception("Unidad inválida");
-
-                if (item.Precio <= 0)
-                    throw new Exception("Precio inválido");
-
-                if (item.Nombre.Length > 80)
-                    throw new Exception("Nombre excede longitud");
-
-                if (item.StockMinimo < 0)
-                    throw new Exception("Stock mínimo inválido");
-
-                if (string.IsNullOrWhiteSpace(item.CodigoMaterial))
-                    throw new Exception("Código requerido");
-
-                var unidad = unidadesDict[item.UnidadMedida.ToLower()];
+                Validar(dto);
 
                 var material = new Material(
-                    item.CodigoMaterial,
-                    item.Nombre,
-                    item.Precio,
-                    unidad.Id_UnidadMedida,
-                    item.Activo,
-                    item.Descripcion,
-                    item.PermiteStockNegativo,
-                    item.StockMinimo
+                    dto.CodigoMaterial,
+                    dto.Nombre,
+                    dto.Precio,
+                    dto.Id_UnidadMedida,
+                    dto.Activo,
+                    dto.Descripcion,
+                    dto.PermiteStockNegativo,
+                    dto.StockMinimo
                 );
 
-                materiales.Add(material);
+                await _materialRepo.AgregarAsync(material);
+
+                resultado.Exitosos++;
             }
             catch (Exception ex)
             {
-                resultado.Errores.Add($"Fila {fila}: {ex.Message}");
-            }
+                resultado.Fallidos++;
 
-            fila++;
+                resultado.Errores.Add(new ErrorImportacionDto
+                {
+                    Fila = row.Fila,
+                    Mensaje = ex.Message
+                });
+            }
         }
 
-        if (materiales.Any())
-            await _materialRepo.AgregarRangoAsync(materiales);
-
-        resultado.RegistrosInsertados = materiales.Count;
+        resultado.TotalProcesados = filas.Count;
 
         return resultado;
+    }
+    private CrearMaterialDto Mapear(MaterialExcelRowDto row, Dictionary<string, UnidadMedida> unidades)
+    {
+        if (!decimal.TryParse(row.PrecioRaw, out var precio))
+            throw new Exception($"Precio inválido: '{row.PrecioRaw}'");
+
+        if (!double.TryParse(row.StockMinimoRaw, out var stock))
+            throw new Exception($"Stock mínimo inválido: '{row.StockMinimoRaw}'");
+
+        if (!unidades.TryGetValue(row.UnidadNombre.ToLower(), out var unidad))
+            throw new Exception($"Unidad '{row.UnidadNombre}' no existe");
+
+        return new CrearMaterialDto
+        {
+            CodigoMaterial = row.CodigoMaterial,
+            Nombre = row.Nombre,
+            Precio = precio,
+            Id_UnidadMedida = unidad.Id_UnidadMedida,
+            Descripcion = row.Descripcion,
+            Activo = ParseBool(row.ActivoRaw),
+            PermiteStockNegativo = ParseBool(row.PermiteStockNegativoRaw),
+            StockMinimo = stock
+        };
+    }
+    private void Validar(CrearMaterialDto dto)
+    {
+        
+        if (string.IsNullOrWhiteSpace(dto.CodigoMaterial))
+            throw new Exception("Código obligatorio");
+
+        if (dto.CodigoMaterial.Length > 30)
+            throw new Exception("Código máximo 30 caracteres");
+
+        if (string.IsNullOrWhiteSpace(dto.Nombre))
+            throw new Exception("Nombre obligatorio");
+
+        if (dto.Nombre.Length > 80)
+            throw new Exception("Nombre máximo 80 caracteres");
+
+        if (dto.Precio <= 0)
+            throw new Exception("Precio debe ser mayor a 0");
+
+        if (dto.StockMinimo < 0)
+            throw new Exception("Stock mínimo no puede ser negativo");
+    }
+    private bool ParseBool(string value)
+    {
+        var v = value.Trim().ToUpper();
+
+        return v == "SI" || v == "TRUE" || v == "1";
     }
 }

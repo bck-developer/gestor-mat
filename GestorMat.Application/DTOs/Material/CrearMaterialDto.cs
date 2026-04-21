@@ -9,5 +9,5 @@ public class CrearMaterialDto
     public bool Activo { get; set; }
     public string Descripcion { get; set; } = string.Empty ;
     public bool PermiteStockNegativo { get; set; }
-    public double StockMinimo { get; set; }
+    public double StockMinimo { get; set; }    
 }

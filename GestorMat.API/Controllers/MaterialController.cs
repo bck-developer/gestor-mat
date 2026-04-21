@@ -84,25 +84,18 @@ namespace GestorMat.API.Controllers
         }
 
         [HttpPost("importar")]
-        public async Task<IActionResult> Importar(IFormFile file)
+        public async Task<IActionResult> ImportarExcel()
         {
+            var file = Request.Form.Files.FirstOrDefault();
+
+            if (file == null || file.Length == 0)
+                return BadRequest("Archivo inválido");
+
             using var stream = file.OpenReadStream();
 
-            var rows = _excelService.LeerExcel(stream);
+            var filas = _excelService.LeerExcelMateriales(stream);
 
-            var items = rows.Select(r => new ImportarMaterialDto
-            {
-                CodigoMaterial = r["CodigoMaterial"],
-                Nombre = r["Nombre"],
-                Precio = decimal.TryParse(r["Precio"], out var p) ? p : 0,
-                UnidadMedida = r["UnidadMedida"],
-                Descripcion = r["Descripcion"],
-                Activo = r["Activo"] == "true",
-                PermiteStockNegativo = r["PermiteStockNegativo"] == "true",
-                StockMinimo = double.TryParse(r["StockMinimo"], out var s) ? s : 0
-            }).ToList();
-
-            var resultado = await _importService.ImportarAsync(items);
+            var resultado = await _importService.ImportarAsync(filas);
 
             return Ok(resultado);
         }

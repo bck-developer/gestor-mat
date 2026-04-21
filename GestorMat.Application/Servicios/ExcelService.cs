@@ -1,4 +1,5 @@
 ﻿using ClosedXML.Excel;
+using GestorMat.Application.DTOs.Material;
 using GestorMat.Application.Interfaces;
 
 namespace GestorMat.Infrastructure.Services;
@@ -10,14 +11,14 @@ public class ExcelService : IExcelService
         using var wb = new XLWorkbook();
         var ws = wb.Worksheets.Add("Materiales");
 
-        ws.Cell(1, 1).Value = "CodigoMaterial";
+        ws.Cell(1, 1).Value = "Codigo Material";
         ws.Cell(1, 2).Value = "Nombre";
         ws.Cell(1, 3).Value = "Precio";
-        ws.Cell(1, 4).Value = "UnidadMedida";
-        ws.Cell(1, 5).Value = "Descripcion";
+        ws.Cell(1, 4).Value = "Unidad de medida";
+        ws.Cell(1, 5).Value = "Descripción";
         ws.Cell(1, 6).Value = "Activo";
-        ws.Cell(1, 7).Value = "PermiteStockNegativo";
-        ws.Cell(1, 8).Value = "StockMinimo";
+        ws.Cell(1, 7).Value = "Permite stock negativo";
+        ws.Cell(1, 8).Value = "Stock mínimo";
 
         // Dropdown unidades
         var wsUnidades = wb.Worksheets.Add("Unidades");
@@ -34,30 +35,33 @@ public class ExcelService : IExcelService
         return ms.ToArray();
     }
 
-    public List<Dictionary<string, string>> LeerExcel(Stream stream)
+    public List<MaterialExcelRowDto> LeerExcelMateriales(Stream stream)
     {
+        var lista = new List<MaterialExcelRowDto>();
+
         using var wb = new XLWorkbook(stream);
         var ws = wb.Worksheet(1);
 
-        var rows = new List<Dictionary<string, string>>();
+        int lastRow = ws.LastRowUsed().RowNumber();
 
-        foreach (var row in ws.RowsUsed().Skip(1))
+        for (int fila = 2; fila <= lastRow; fila++)
         {
-            var dict = new Dictionary<string, string>
-            {
-                ["CodigoMaterial"] = row.Cell(1).GetString(),
-                ["Nombre"] = row.Cell(2).GetString(),
-                ["Precio"] = row.Cell(3).GetString(),
-                ["UnidadMedida"] = row.Cell(4).GetString(),
-                ["Descripcion"] = row.Cell(5).GetString(),
-                ["Activo"] = row.Cell(6).GetString(),
-                ["PermiteStockNegativo"] = row.Cell(7).GetString(),
-                ["StockMinimo"] = row.Cell(8).GetString()
-            };
+            if (ws.Row(fila).IsEmpty()) continue;
 
-            rows.Add(dict);
+            lista.Add(new MaterialExcelRowDto
+            {
+                Fila = fila,
+                CodigoMaterial = ws.Cell(fila, 1).GetString(),
+                Nombre = ws.Cell(fila, 2).GetString(),
+                PrecioRaw = ws.Cell(fila, 3).GetString(),
+                UnidadNombre = ws.Cell(fila, 4).GetString(),
+                Descripcion = ws.Cell(fila, 5).GetString(),
+                ActivoRaw = ws.Cell(fila, 6).GetString(),
+                PermiteStockNegativoRaw = ws.Cell(fila, 7).GetString(),
+                StockMinimoRaw = ws.Cell(fila, 8).GetString()
+            });
         }
 
-        return rows;
+        return lista;
     }
 }
