@@ -36,6 +36,18 @@ public class MaterialImportService
                 if (!unidadesDict.ContainsKey(item.UnidadMedida.ToLower()))
                     throw new Exception("Unidad inválida");
 
+                if (item.Precio <= 0)
+                    throw new Exception("Precio inválido");
+
+                if (item.Nombre.Length > 80)
+                    throw new Exception("Nombre excede longitud");
+
+                if (item.StockMinimo < 0)
+                    throw new Exception("Stock mínimo inválido");
+
+                if (string.IsNullOrWhiteSpace(item.CodigoMaterial))
+                    throw new Exception("Código requerido");
+
                 var unidad = unidadesDict[item.UnidadMedida.ToLower()];
 
                 var material = new Material(

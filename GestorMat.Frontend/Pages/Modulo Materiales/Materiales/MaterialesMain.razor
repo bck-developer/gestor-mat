@@ -23,7 +23,12 @@
         }
     </button>
 
-    <InputFile OnChange="SubirExcel" />
+    <div class="file-upload-container">
+        <label class="btn btn-outline-primary">
+            📤 Cargar Excel
+            <InputFile OnChange="SubirExcel" hidden />
+        </label>
+    </div>
 </div>
 
 @if (cargando)
@@ -36,7 +41,24 @@ else if (string.IsNullOrEmpty(error))
 {
     @if (materiales != null && materiales.Count > 0)
     {
+        @if (!string.IsNullOrEmpty(mensaje))
+        {
+            <div class="alert @(tipoMensaje == "success" ? "alert-success" : "alert-danger")">
+                @mensaje
+            </div>
+        }
+
+        @if (cargandoArchivo)
+        {
+            <div class="loading mt-2">
+                <p>Procesando archivo...</p>
+            </div>
+        }
+
         <div class="table-responsive">
+
+
+
             <table class="table table-striped table-hover">
                 <thead>
                     <tr>
@@ -111,6 +133,9 @@ else
     private int materialAEliminarId;
     private string materialAEliminarNombre = string.Empty;
     private bool descargando = false;
+    private bool cargandoArchivo = false;
+    private string mensaje = "";
+    private string tipoMensaje = ""; // success / error
 
     protected override async Task OnInitializedAsync()
     {
@@ -207,20 +232,51 @@ else
 
     private async Task SubirExcel(InputFileChangeEventArgs e)
     {
-        var file = e.File;
+        mensaje = "";
+        tipoMensaje = "";
 
-        var content = new MultipartFormDataContent();
-        content.Add(new StreamContent(file.OpenReadStream()), "file", file.Name);
-
-        var client = await AuthHttpClient.GetClient();
-        var response = await client.PostAsync("api/material/importar", content);
-
-        var result = await response.Content.ReadFromJsonAsync<ResultadoImportacionDto>();
-
-        if (result != null)
+        try
         {
-            error = string.Join("\n", result.Errores);
-            await Recargar();
+            var file = e.File;
+
+            if (!file.Name.EndsWith(".xlsx"))
+            {
+                mensaje = "El archivo debe ser un Excel (.xlsx)";
+                tipoMensaje = "error";
+                return;
+            }
+
+            cargandoArchivo = true;
+
+            var content = new MultipartFormDataContent();
+            content.Add(new StreamContent(file.OpenReadStream()), "file", file.Name);
+
+            var client = await AuthHttpClient.GetClient();
+            var response = await client.PostAsync("api/material/importar", content);
+
+            var result = await response.Content.ReadFromJsonAsync<ResultadoImportacionDto>();
+
+            if (result != null)
+            {
+                mensaje = $"✔ {result.RegistrosInsertados} registros cargados | ❌ {result.Errores.Count} errores";
+                tipoMensaje = result.Errores.Any() ? "error" : "success";
+
+                if (result.Errores.Any())
+                {
+                    mensaje += "\n\n" + string.Join("\n", result.Errores.Take(5));
+                }
+
+                await Recargar();
+            }
+        }
+        catch (Exception ex)
+        {
+            mensaje = $"Error: {ex.Message}";
+            tipoMensaje = "error";
+        }
+        finally
+        {
+            cargandoArchivo = false;
         }
     }
 
