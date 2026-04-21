@@ -46,5 +46,11 @@ namespace GestorMat.Infrastructure.Repositorios
             _context.Materiales.Remove(Material);
             await _context.SaveChangesAsync();
         }
+
+        public async Task AgregarRangoAsync(List<Material> materiales)
+        {
+            await _context.Materiales.AddRangeAsync(materiales);
+            await _context.SaveChangesAsync();
+        }
     }
 }

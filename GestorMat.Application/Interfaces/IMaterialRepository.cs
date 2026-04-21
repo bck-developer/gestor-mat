@@ -9,4 +9,5 @@ public interface IMaterialRepository
     Task<Material?> ObtenerPorIdAsync(int id);
     Task EditarAsync(Material material);
     Task EliminarAsync(Material material);
+    Task AgregarRangoAsync(List<Material> materiales);
 }

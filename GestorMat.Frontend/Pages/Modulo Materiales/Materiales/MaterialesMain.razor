@@ -1,7 +1,7 @@
 @page "/materiales"
 @inject AuthHttpClient AuthHttpClient
-@* @inject MaterialService MaterialService *@
 @inject NavigationManager Navigation
+@inject IJSRuntime JS
 
 <h1 class="page-title">Materiales</h1>
 
@@ -12,6 +12,18 @@
     <button class="btn btn-secondary" @onclick="Recargar">
         <span class="icon">🔄</span> Recargar
     </button>
+    <button class="btn btn-success" @onclick="DescargarPlantilla" disabled="@descargando">
+        @if (descargando)
+        {
+            <span>Descargando...</span>
+        }
+        else
+        {
+            <span>📥 Plantilla Excel</span>
+        }
+    </button>
+
+    <InputFile OnChange="SubirExcel" />
 </div>
 
 @if (cargando)
@@ -98,6 +110,7 @@ else
     private bool mostrarConfirmacion = false;
     private int materialAEliminarId;
     private string materialAEliminarNombre = string.Empty;
+    private bool descargando = false;
 
     protected override async Task OnInitializedAsync()
     {
@@ -157,12 +170,63 @@ else
         }
     }
 
-    public class MaterialDto
+    private async Task DescargarPlantilla()
     {
-        public int Id_Material { get; set; }
-        public string Nombre { get; set; } = string.Empty;
-        public decimal Precio { get; set; }
-        public int IdUnidadMedida { get; set; }
-        public string UnidadMedida { get; set; } = string.Empty;
+        try
+        {
+            descargando = true;
+
+            var client = await AuthHttpClient.GetClient();
+
+            var response = await client.GetAsync("api/material/plantilla", HttpCompletionOption.ResponseHeadersRead);
+
+            response.EnsureSuccessStatusCode();
+
+            var stream = await response.Content.ReadAsStreamAsync();
+
+            using var ms = new MemoryStream();
+            await stream.CopyToAsync(ms);
+
+            var module = await JS.InvokeAsync<IJSObjectReference>("import", "./js/download.js");
+
+            await module.InvokeVoidAsync(
+                "downloadFileFromStream",
+                "PlantillaMateriales.xlsx",
+                ms.ToArray()
+            );
+        }
+        catch (Exception ex)
+        {
+            error = $"Error al descargar: {ex.Message}";
+        }
+        finally
+        {
+            descargando = false;
+        }
+    }
+
+    private async Task SubirExcel(InputFileChangeEventArgs e)
+    {
+        var file = e.File;
+
+        var content = new MultipartFormDataContent();
+        content.Add(new StreamContent(file.OpenReadStream()), "file", file.Name);
+
+        var client = await AuthHttpClient.GetClient();
+        var response = await client.PostAsync("api/material/importar", content);
+
+        var result = await response.Content.ReadFromJsonAsync<ResultadoImportacionDto>();
+
+        if (result != null)
+        {
+            error = string.Join("\n", result.Errores);
+            await Recargar();
+        }
+    }
+
+    public class ResultadoImportacionDto
+    {
+        public List<string> Errores { get; set; } = new();
+        public int RegistrosInsertados { get; set; }
     }
 }
