@@ -1,14 +1,24 @@
-﻿namespace GestorMat.Domain.Entidades;
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace GestorMat.Domain.Entidades;
 
 public class Deposito
 {
+    [Key]
     public int Id_Deposito { get; set; }
+
+    [StringLength(20)]
     public string CodigoDeposito { get; init; } = string.Empty;
+
+    [StringLength(60)]
     public string Nombre { get; init; } = string.Empty;
+
+    [StringLength(120)]
     public string Direccion { get; init; } = string.Empty;
+
     public bool Habilitado { get; init; }
 
-    public Deposito(string codigoDeposito, string nombre, string direccion, bool habilitado = true)
+    public Deposito(string codigoDeposito, string nombre, string direccion, bool habilitado)
     {
         if (string.IsNullOrWhiteSpace(codigoDeposito))
         {

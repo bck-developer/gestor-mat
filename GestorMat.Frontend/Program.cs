@@ -15,12 +15,11 @@ builder.Services.AddScoped(sp => new HttpClient
 {
     BaseAddress = new Uri("https://localhost:7028/")
 });
-builder.Services.AddScoped<AuthService>();
 
+builder.Services.AddScoped<AuthService>();
 builder.Services.AddBlazoredSessionStorage();
 builder.Services.AddScoped<AuthHttpClient>();
 builder.Services.AddScoped<NavigationService>();
-builder.Services.AddScoped<MaterialService>();
 builder.Services.AddScoped<DepositoService>();
 builder.Services.AddAuthorizationCore();
 builder.Services.AddScoped<AuthenticationStateProvider, CustomAuthStateProvider>();

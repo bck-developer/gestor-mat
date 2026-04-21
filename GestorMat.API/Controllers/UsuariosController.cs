@@ -7,21 +7,14 @@ namespace GestorMat.API.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class UsuariosController : ControllerBase
+    public class UsuariosController(UsuarioService service) : ControllerBase
     {
-        private readonly UsuarioService _service;
-
-        public UsuariosController(UsuarioService service)
-        {
-            _service = service;
-        }
-
         [HttpPost]
         public async Task<IActionResult> Crear([FromBody] CrearUsuarioDto dto)
         {
             try
             {
-                await _service.CrearAsyncService(dto);
+                await service.CrearAsyncService(dto);
                 return Ok();
             }
             catch (Exception ex)
@@ -35,7 +28,7 @@ namespace GestorMat.API.Controllers
         {
             try
             {
-                return Ok(await _service.ObtenerTodosAsyncService());
+                return Ok(await service.ObtenerTodosAsyncService());
             }
             catch (Exception ex)
             {
@@ -46,7 +39,7 @@ namespace GestorMat.API.Controllers
         [HttpGet("{id}")]
         public async Task<IActionResult> ObtenerPorId(int id)
         {
-            Usuario? usuario = await _service.ObtenerPorIdAsyncService(id);
+            Usuario? usuario = await service.ObtenerPorIdAsyncService(id);
 
             if (usuario == null)
             {
@@ -55,7 +48,7 @@ namespace GestorMat.API.Controllers
 
             return Ok(new UsuarioDto
             {
-                Id = usuario.Id,
+                Id_Usuario = usuario.Id_Usuario,
                 Username = usuario.Username,
                 Nombre = usuario.Nombre,
                 Mail = usuario.Mail,
@@ -67,28 +60,28 @@ namespace GestorMat.API.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> Actualizar(int id, CrearUsuarioDto dto)
         {
-            await _service.ActualizarAsyncService(id, dto);
+            await service.ActualizarAsyncService(id, dto);
             return Ok();
         }
 
         [HttpDelete("{id}")]
         public async Task<IActionResult> Eliminar(int id)
         {
-            await _service.EliminarFisicoAsync(id);
+            await service.EliminarFisicoAsync(id);
             return NoContent();
         }
 
         [HttpPatch("{id}/inhabilitar")]
         public async Task<IActionResult> Inhabilitar(int id)
         {
-            await _service.InhabilitarAsyncService(id);
+            await service.InhabilitarAsyncService(id);
             return Ok();
         }
 
         [HttpPatch("{id}/rehabilitar")]
         public async Task<IActionResult> Rehabilitar(int id)
         {
-            await _service.RehabilitarAsyncService(id);
+            await service.RehabilitarAsyncService(id);
             return Ok();
         }
     }

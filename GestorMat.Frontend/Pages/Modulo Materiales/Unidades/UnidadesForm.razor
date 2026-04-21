@@ -1,5 +1,6 @@
 @page "/crear-unidad"
 @page "/editar-unidad/{Id:int}"
+
 @inject AuthHttpClient AuthHttpClient
 @inject NavigationManager Navigation
 
@@ -16,31 +17,53 @@ else
     <div class="form-container">
         <div class="card">
             <div class="card-body">
-                <EditForm Model="modelo" OnSubmit="Guardar">
+
+                <EditForm Model="modelo" OnValidSubmit="Guardar">
                     <DataAnnotationsValidator />
                     <ValidationSummary />
 
+                    <!-- NOMBRE -->
                     <div class="form-group">
                         <label for="nombre">Nombre:</label>
                         <InputText id="nombre" class="form-control" @bind-Value="modelo.Nombre" />
                         <ValidationMessage For="@(() => modelo.Nombre)" class="text-danger" />
                     </div>
 
+                    <!-- ABREVIATURA -->
                     <div class="form-group">
                         <label for="abreviatura">Abreviatura:</label>
-                        <InputText id="abreviatura" class="form-control" @bind-Value="modelo.Abreviatura" maxlength="10" />
+                        <InputText id="abreviatura" class="form-control"
+                                   @bind-Value="modelo.Abreviatura" maxlength="10" />
                         <ValidationMessage For="@(() => modelo.Abreviatura)" class="text-danger" />
                     </div>
 
+                    <!-- ACTIVO -->
+                    <div class="form-group">
+                        <label>
+                            <InputCheckbox @bind-Value="modelo.Activo" />
+                            Activo
+                        </label>
+                    </div>
+
+                    <!-- BOTONES -->
                     <div class="button-group mt-3">
-                        <button type="submit" class="btn btn-primary">
-                            <span class="icon">💾</span> @(Id == 0 ? "Crear" : "Actualizar")
+                        <button type="submit" class="btn btn-primary" disabled="@guardando">
+                            @if (guardando)
+                            {
+                                <span>Guardando...</span>
+                            }
+                            else
+                            {
+                                <span>💾 @(Id == 0 ? "Crear" : "Actualizar")</span>
+                            }
                         </button>
+
                         <button type="button" class="btn btn-secondary" @onclick="Volver">
-                            <span class="icon">⬅️</span> Volver
+                            ⬅️ Volver
                         </button>
                     </div>
 
+                    <!-- MENSAJES -->
                     @if (!string.IsNullOrEmpty(error))
                     {
                         <div class="alert alert-danger mt-3">
@@ -54,7 +77,9 @@ else
                             @exito
                         </div>
                     }
+
                 </EditForm>
+
             </div>
         </div>
     </div>
@@ -64,8 +89,10 @@ else
     [Parameter]
     public int Id { get; set; }
 
-    private CrearUnidadDto modelo = new();
+    private CrearUnidadMedidaDto modelo = new();
     private bool cargando = false;
+    private bool guardando = false;
+
     private string error = string.Empty;
     private string exito = string.Empty;
 
@@ -74,16 +101,20 @@ else
         if (Id != 0)
         {
             cargando = true;
+
             try
             {
-                HttpClient client = await AuthHttpClient.GetClient();
-                UnidadDto? unidad = await client.GetFromJsonAsync<UnidadDto>($"api/unidadmedida/{Id}");
+                var client = await AuthHttpClient.GetClient();
+
+                var unidad = await client.GetFromJsonAsync<UnidadMedidaDto>($"api/unidadmedida/{Id}");
+
                 if (unidad != null)
                 {
-                    modelo = new CrearUnidadDto
+                    modelo = new CrearUnidadMedidaDto
                     {
                         Nombre = unidad.Nombre,
-                        Abreviatura = unidad.Abreviatura
+                        Abreviatura = unidad.Abreviatura,
+                        Activo = unidad.Activo
                     };
                 }
                 else
@@ -104,61 +135,58 @@ else
 
     private async Task Guardar()
     {
+        if (guardando) return;
+
+        guardando = true;
         error = string.Empty;
         exito = string.Empty;
 
         try
         {
-            HttpClient client = await AuthHttpClient.GetClient();
+            var client = await AuthHttpClient.GetClient();
             HttpResponseMessage response;
 
             if (Id == 0)
-            {
                 response = await client.PostAsJsonAsync("api/unidadmedida", modelo);
-                if (response.IsSuccessStatusCode)
-                {
-                    exito = "Unidad creada correctamente";
-                }
-            }
             else
-            {
                 response = await client.PutAsJsonAsync($"api/unidadmedida/{Id}", modelo);
-                if (response.IsSuccessStatusCode)
-                {
-                    exito = "Unidad actualizada correctamente";
-                }
-            }
 
             if (!response.IsSuccessStatusCode)
             {
-                error = $"Error: {response.StatusCode}";
+                var contenido = await response.Content.ReadAsStringAsync();
+
+                try
+                {
+                    var errorObj = System.Text.Json.JsonSerializer.Deserialize<Dictionary<string, object>>(contenido);
+                    error = errorObj?["mensaje"]?.ToString() ?? "Error inesperado";
+                }
+                catch
+                {
+                    error = contenido;
+                }
+
                 return;
             }
 
-            await Task.Delay(1500);
+            exito = Id == 0
+                ? "Unidad creada correctamente"
+                : "Unidad actualizada correctamente";
+
+            await Task.Delay(1200);
             Navigation.NavigateTo("/unidades");
         }
         catch (Exception ex)
         {
             error = $"Error: {ex.Message}";
         }
+        finally
+        {
+            guardando = false;
+        }
     }
 
     private void Volver()
     {
         Navigation.NavigateTo("/unidades");
-    }
-
-    public class CrearUnidadDto
-    {
-        public string Nombre { get; set; } = string.Empty;
-        public string Abreviatura { get; set; } = string.Empty;
-    }
-
-    public class UnidadDto
-    {
-        public int Id { get; set; }
-        public string Nombre { get; set; } = string.Empty;
-        public string Abreviatura { get; set; } = string.Empty;
     }
 }

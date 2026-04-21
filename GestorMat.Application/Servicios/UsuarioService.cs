@@ -4,7 +4,7 @@ using GestorMat.Domain.Entidades;
 
 namespace GestorMat.Application.Servicios;
 
-public class UsuarioService(IUsuarioRepository repo, IPasswordHasher hasher)
+public class UsuarioService(IUsuarioRepository repository, IPasswordHasher hasher)
 {
     // 1 - CREAR
     public async Task CrearAsyncService(CrearUsuarioDto dto)
@@ -30,17 +30,17 @@ public class UsuarioService(IUsuarioRepository repo, IPasswordHasher hasher)
             dto.Activo
         );
 
-        await repo.AgregarAsync(usuario);
+        await repository.AgregarAsync(usuario);
     }
 
     // 2 - OBTENER TODOS
     public async Task<List<UsuarioDto>> ObtenerTodosAsyncService()
     {
-        IEnumerable<Usuario> usuarios = await repo.ObtenerTodosAsync();
+        IEnumerable<Usuario> usuarios = await repository.ObtenerTodosAsync();
 
         return usuarios.Select(u => new UsuarioDto
         {
-            Id = u.Id,
+            Id_Usuario = u.Id_Usuario,
             Username = u.Username,
             Nombre = u.Nombre,
             Mail = u.Mail,
@@ -52,13 +52,13 @@ public class UsuarioService(IUsuarioRepository repo, IPasswordHasher hasher)
     // 3 - OBTENER POR ID
     public async Task<Usuario?> ObtenerPorIdAsyncService(int id)
     {
-        return await repo.ObtenerPorIdAsync(id);
+        return await repository.ObtenerPorIdAsync(id);
     }
 
     // 4- ACTUALIZAR
     public async Task ActualizarAsyncService(int id, CrearUsuarioDto dto)
     {
-        Usuario? usuario = await repo.ObtenerPorIdAsync(id);
+        Usuario? usuario = await repository.ObtenerPorIdAsync(id);
 
         if (usuario == null)
         {
@@ -73,20 +73,20 @@ public class UsuarioService(IUsuarioRepository repo, IPasswordHasher hasher)
             usuario.CambiarPassword(hash);
         }
 
-        await repo.EditarAsync(usuario);
+        await repository.EditarAsync(usuario);
     }
 
     // 5 - ELIMINAR FISICO 
     public async Task EliminarFisicoAsync(int id)
     {
-        Usuario? usuario = await repo.ObtenerPorIdAsync(id);
+        Usuario? usuario = await repository.ObtenerPorIdAsync(id);
 
         if (usuario == null)
         {
             throw new Exception("Usuario no encontrado");
         }
 
-        await repo.EliminarFisicoAsync(usuario);
+        await repository.EliminarAsync(usuario);
     }
 
     // ADICIONALES
@@ -94,7 +94,7 @@ public class UsuarioService(IUsuarioRepository repo, IPasswordHasher hasher)
     // INHABILITAR
     public async Task InhabilitarAsyncService(int id)
     {
-        Usuario? usuario = await repo.ObtenerPorIdAsync(id);
+        Usuario? usuario = await repository.ObtenerPorIdAsync(id);
 
         if (usuario == null)
         {
@@ -103,13 +103,13 @@ public class UsuarioService(IUsuarioRepository repo, IPasswordHasher hasher)
 
         usuario.Desactivar();
 
-        await repo.EditarAsync(usuario);
+        await repository.EditarAsync(usuario);
     }
 
     // REHABILITAR
     public async Task RehabilitarAsyncService(int id)
     {
-        Usuario? usuario = await repo.ObtenerPorIdAsync(id);
+        Usuario? usuario = await repository.ObtenerPorIdAsync(id);
 
         if (usuario == null)
         {
@@ -118,6 +118,6 @@ public class UsuarioService(IUsuarioRepository repo, IPasswordHasher hasher)
 
         usuario.Activar();
 
-        await repo.EditarAsync(usuario);
+        await repository.EditarAsync(usuario);
     }
 }

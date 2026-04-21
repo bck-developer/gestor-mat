@@ -1,12 +1,13 @@
 ﻿namespace GestorMat.Frontend.Pages.Gestion_de_Usuarios;
+
 public class UsuarioDto
 {
-    public int Id { get; set; }
+    public int Id_Usuario { get; set; }
     public string Username { get; set; } = string.Empty;
     public string Nombre { get; set; } = string.Empty;
     public string Mail { get; set; } = string.Empty;
     public string Rol { get; set; } = string.Empty;
-    public int IdRol { get; set; }
+    public int Id_Rol { get; set; }
     public bool Activo { get; set; }
 }
 
@@ -22,6 +23,6 @@ public class CrearUsuarioDto
     public string Password { get; set; } = string.Empty;
     public string Nombre { get; set; } = string.Empty;
     public string Mail { get; set; } = string.Empty;
-    public int IdRol { get; set; }
+    public int Id_Rol { get; set; }
     public bool Activo { get; set; } = true;
 }

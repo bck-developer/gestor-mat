@@ -14,24 +14,37 @@ namespace GestorMat.Infrastructure.Repositorios
             _context = context;
         }
 
-        public async Task AgregarAsync(Material material)
+        public async Task AgregarAsync(Material Material)
         {
-            _context.Materiales.Add(material);
+            await _context.Materiales.AddAsync(Material);
             await _context.SaveChangesAsync();
         }
 
-        public async Task AgregarRangoAsync(IEnumerable<Material> materiales)
-        {
-            _context.Materiales.AddRange(materiales);
-            await _context.SaveChangesAsync();
-        }
-
-        public async Task<IEnumerable<Material>> ObtenerTodosAsync()
+        public async Task<List<Material>> ObtenerTodosAsync()
         {
             return await _context.Materiales
+                .Include(u => u.UnidadMedida)
                 .AsNoTracking()
-                .Include(m => m.UnidadMedida)
                 .ToListAsync();
+        }
+
+        public async Task<Material?> ObtenerPorIdAsync(int id)
+        {
+            return await _context.Materiales
+                .Include(u => u.UnidadMedida)
+                .FirstOrDefaultAsync(u => u.Id_Material == id);
+        }
+
+        public async Task EditarAsync(Material Material)
+        {
+            _context.Materiales.Update(Material);
+            await _context.SaveChangesAsync();
+        }
+
+        public async Task EliminarAsync(Material Material)
+        {
+            _context.Materiales.Remove(Material);
+            await _context.SaveChangesAsync();
         }
     }
 }

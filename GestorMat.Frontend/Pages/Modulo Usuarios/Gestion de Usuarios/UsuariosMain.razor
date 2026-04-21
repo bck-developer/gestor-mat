@@ -51,22 +51,22 @@ else if (string.IsNullOrEmpty(error))
                             </td>
                             <td>
                                 <div class="action-buttons-inline">
-                                    <button class="btn btn-sm btn-warning" @onclick="() => Editar(u.Id)" title="Editar usuario">
+                                    <button class="btn btn-sm btn-warning" @onclick="() => Editar(u.Id_Usuario)" title="Editar usuario">
                                         ✏️ Editar
                                     </button>
                                     @if (u.Activo)
                                     {
-                                        <button class="btn btn-sm btn-danger" @onclick="() => ConfirmarInhabilitar(u.Id, u.Username)" title="Inhabilitar acceso">
+                                        <button class="btn btn-sm btn-danger" @onclick="() => ConfirmarInhabilitar(u.Id_Usuario, u.Username)" title="Inhabilitar acceso">
                                             🔒 Inhabilitar
                                         </button>
                                     }
                                     else
                                     {
-                                        <button class="btn btn-sm btn-success" @onclick="() => Rehabilitar(u.Id)" title="Habilitar acceso">
+                                        <button class="btn btn-sm btn-success" @onclick="() => Rehabilitar(u.Id_Usuario)" title="Habilitar acceso">
                                             🔓 Habilitar
                                         </button>
                                     }
-                                    <button class="btn btn-sm btn-danger btn-outline" @onclick="() => ConfirmarEliminar(u.Id, u.Username)" title="Eliminar definitivamente">
+                                    <button class="btn btn-sm btn-danger btn-outline" @onclick="() => ConfirmarEliminar(u.Id_Usuario, u.Username)" title="Eliminar definitivamente">
                                         🗑️ Eliminar
                                     </button>
                                 </div>
@@ -212,6 +212,5 @@ else
             error = $"Error al habilitar usuario: {ex.Message}";
         }
     }
-
 
 }

@@ -1,27 +1,34 @@
 using GestorMat.Application.DTOs;
 using GestorMat.Application.Servicios;
+using GestorMat.Domain.Entidades;
 using Microsoft.AspNetCore.Mvc;
 
 namespace GestorMat.API.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class UnidadMedidaController : ControllerBase
+    public class UnidadMedidaController(UnidadMedidaService service) : ControllerBase
     {
-        private readonly UnidadMedidaService _service;
-
-        public UnidadMedidaController(UnidadMedidaService service)
+        [HttpPost]
+        public async Task<IActionResult> Crear([FromBody] CrearUnidadMedidaDto dto)
         {
-            _service = service;
+            try
+            {
+                await service.CrearAsyncService(dto);
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
         }
 
         [HttpGet]
-        public async Task<IActionResult> Get()
+        public async Task<IActionResult> ObtenerTodos()
         {
             try
             {
-                var unidades = await _service.ObtenerTodasAsync();
-                return Ok(unidades);
+                return Ok(await service.ObtenerTodosAsyncService());
             }
             catch (Exception ex)
             {
@@ -29,31 +36,54 @@ namespace GestorMat.API.Controllers
             }
         }
 
-        [HttpPost]
-        public async Task<IActionResult> Post([FromBody] CrearUnidadMedidaDto dto)
+        [HttpGet("{id}")]
+        public async Task<IActionResult> ObtenerPorId(int id)
         {
-            try
+            UnidadMedida? unidadmedida = await service.ObtenerPorIdAsyncService(id);
+
+            if (unidadmedida == null)
             {
-                await _service.CrearAsync(dto);
-                return Ok();
+                return NotFound();
             }
-            catch (Exception ex)
+
+            return Ok(new UnidadMedidaDto
             {
-                return BadRequest(new { message = ex.Message });
-            }
+                Id_UnidadMedida = unidadmedida.Id_UnidadMedida,
+                Nombre = unidadmedida.Nombre,
+                Abreviatura = unidadmedida.Abreviatura,
+                Activo = unidadmedida.Activo
+            });
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> Put(int id, [FromBody] CrearUnidadMedidaDto dto)
+        public async Task<IActionResult> Actualizar(int id, CrearUnidadMedidaDto dto)
         {
+
             try
             {
-                await _service.EditarAsync(id, dto);
+                await service.ActualizarAsyncService(id, dto);
+
                 return Ok();
             }
             catch (Exception ex)
             {
-                return BadRequest(new { message = ex.Message });
+                return BadRequest(new { mensaje = ex.Message });
+            }
+
+
+        }
+
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> Eliminar(int id)
+        {
+            try
+            {
+                await service.EliminarFisicoAsync(id);
+                return NoContent();
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { mensaje = ex.Message });
             }
         }
     }

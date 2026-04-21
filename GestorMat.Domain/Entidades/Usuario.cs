@@ -1,18 +1,29 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace GestorMat.Domain.Entidades;
 
 public class Usuario
 {
-    public int Id { get; private set; }
+    [Key]
+    public int Id_Usuario { get; private set; }
+
+    [StringLength(14, MinimumLength = 3)]
     public string Username { get; private set; }
+
+    [StringLength(255)]
     public string PasswordHash { get; private set; }
+
+    [StringLength(60)]
     public string Nombre { get; private set; }
+
+    [StringLength(100)]
+    [EmailAddress]
     public string Mail { get; private set; }
+
     public DateTime FechaAlta { get; private set; }
+
     public int IdRol { get; private set; }
+
     public bool Activo { get; private set; }
 
     public Rol Rol { get; private set; }

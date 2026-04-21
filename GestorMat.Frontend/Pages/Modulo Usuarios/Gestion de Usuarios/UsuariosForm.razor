@@ -51,14 +51,14 @@ else
 
                     <div class="form-group">
                         <label for="idRol">Rol:</label>
-                        <InputSelect id="idRol" class="form-control" @bind-Value="modelo.IdRol">
+                        <InputSelect id="idRol" class="form-control" @bind-Value="modelo.Id_Rol">
                             <option value="0">-- Seleccionar Rol --</option>
                             @foreach (var rol in roles)
                             {
                                 <option value="@rol.IdRol">@rol.RolName</option>
                             }
                         </InputSelect>
-                        <ValidationMessage For="@(() => modelo.IdRol)" class="text-danger" />
+                        <ValidationMessage For="@(() => modelo.Id_Rol)" class="text-danger" />
                     </div>
 
                     <div class="form-group">
@@ -127,7 +127,7 @@ else
                         Username = data.Username,
                         Nombre = data.Nombre,
                         Mail = data.Mail,
-                        IdRol = data.IdRol,
+                        Id_Rol = data.Id_Rol,
                         Activo = data.Activo
                     };
                 }
