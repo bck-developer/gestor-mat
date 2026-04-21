@@ -5,6 +5,8 @@ namespace GestorMat.Application.Interfaces;
 public interface IMaterialRepository
 {
     Task AgregarAsync(Material material);
-    Task AgregarRangoAsync(IEnumerable<Material> materiales);
-    Task<IEnumerable<Material>> ObtenerTodosAsync();
+    Task<List<Material>> ObtenerTodosAsync();
+    Task<Material?> ObtenerPorIdAsync(int id);
+    Task EditarAsync(Material material);
+    Task EliminarAsync(Material material);
 }

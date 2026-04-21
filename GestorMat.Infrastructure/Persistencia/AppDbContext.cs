@@ -16,6 +16,8 @@ namespace GestorMat.Infrastructure.Persistencia
         public DbSet<Saldo> Saldos { get; set; }
         public DbSet<Usuario> Usuarios { get; set; }
         public DbSet<Rol> Roles { get; set; }
+        
+        public DbSet<MovimientoMaterial> MovimientosMaterial { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {            
@@ -35,7 +37,7 @@ namespace GestorMat.Infrastructure.Persistencia
             {
                 entity.ToTable("roles");
 
-                entity.HasKey(e => e.IdRol);
+                entity.HasKey(e => e.Id_Rol);
 
                 entity.Property(e => e.RolName)
                     .IsRequired()
@@ -59,7 +61,7 @@ namespace GestorMat.Infrastructure.Persistencia
 
                 entity.HasOne(e => e.UnidadMedida)
                       .WithMany()
-                      .HasForeignKey(e => e.IdUnidadMedida);
+                      .HasForeignKey(e => e.Id_UnidadMedida);
             });
 
             modelBuilder.Entity<Saldo>(entity =>
@@ -87,7 +89,7 @@ namespace GestorMat.Infrastructure.Persistencia
             {
                 entity.ToTable("usuarios");
 
-                entity.HasKey(e => e.Id);
+                entity.HasKey(e => e.Id_Usuario);
 
                 entity.Property(e => e.Username)
                     .IsRequired()

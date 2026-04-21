@@ -33,17 +33,18 @@ else if (string.IsNullOrEmpty(error))
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach (UnidadDto u in unidades)
+                    @foreach (UnidadMedidaDto u in unidades)
                     {
                         <tr>
                             <td>@u.Nombre</td>
                             <td>@u.Abreviatura</td>
                             <td>
                                 <div class="action-buttons-inline">
-                                    <button class="btn btn-sm btn-warning" @onclick="() => IrEditar(u.Id)" title="Editar unidad">
+                                    <button class="btn btn-sm btn-warning" @onclick="() => IrEditar(u.Id_UnidadMedida)">
                                         ✏️ Editar
                                     </button>
-                                    <button class="btn btn-sm btn-danger btn-outline" @onclick="() => ConfirmarEliminar(u.Id, u.Nombre)" title="Eliminar definitivamente">
+                                    <button class="btn btn-sm btn-danger btn-outline"
+                                            @onclick="() => ConfirmarEliminar(u.Id_UnidadMedida, u.Nombre)">
                                         🗑️ Eliminar
                                     </button>
                                 </div>
@@ -56,14 +57,14 @@ else if (string.IsNullOrEmpty(error))
     }
     else
     {
-        <div class="alert alert-info" role="alert">
+        <div class="alert alert-info">
             <p>No hay unidades registradas. <a href="/crear-unidad">Crea una aquí</a></p>
         </div>
     }
 }
 else
 {
-    <div class="alert alert-danger" role="alert">
+    <div class="alert alert-danger">
         <p>@error</p>
         <button class="btn btn-secondary" @onclick="Recargar">Reintentar</button>
     </div>
@@ -79,22 +80,33 @@ else
             </div>
             <div class="modal-body">
                 <p>¿Estás seguro de que deseas eliminar la unidad "<strong>@unidadAEliminarNombre</strong>"?</p>
+
+                @if (!string.IsNullOrEmpty(errorModal))
+                {
+                    <div class="alert alert-danger mt-2">@errorModal</div>
+                }
             </div>
             <div class="modal-footer">
                 <button class="btn btn-secondary" @onclick="CancelarEliminar">Cancelar</button>
-                <button class="btn btn-danger" @onclick="EliminarConfirmado">Eliminar</button>
+                <button class="btn btn-danger" @onclick="EliminarConfirmado" disabled="@eliminando">
+                    @(eliminando ? "Eliminando..." : "Eliminar")
+                </button>
             </div>
         </div>
     </div>
 }
 
 @code {
-    private List<UnidadDto> unidades = new();
+    private List<UnidadMedidaDto> unidades = new();
     private bool cargando = true;
     private string error = string.Empty;
+
     private bool mostrarConfirmacion = false;
+    private bool eliminando = false;
+
     private int unidadAEliminarId;
     private string unidadAEliminarNombre = string.Empty;
+    private string errorModal = string.Empty;
 
     protected override async Task OnInitializedAsync()
     {
@@ -110,8 +122,8 @@ else
         try
         {
             HttpClient client = await AuthHttpClient.GetClient();
-            List<UnidadDto>? data = await client.GetFromJsonAsync<List<UnidadDto>>("api/unidadmedida");
-            unidades = data ?? new List<UnidadDto>();
+            var data = await client.GetFromJsonAsync<List<UnidadMedidaDto>>("api/unidadmedida");
+            unidades = data ?? new List<UnidadMedidaDto>();
         }
         catch (Exception ex)
         {
@@ -131,33 +143,55 @@ else
     {
         unidadAEliminarId = id;
         unidadAEliminarNombre = nombre;
+        errorModal = string.Empty;
         mostrarConfirmacion = true;
     }
 
     private void CancelarEliminar()
     {
         mostrarConfirmacion = false;
+        errorModal = string.Empty;
     }
 
     private async Task EliminarConfirmado()
     {
+        if (eliminando) return;
+
+        eliminando = true;
+        errorModal = string.Empty;
+
         try
         {
             HttpClient client = await AuthHttpClient.GetClient();
-            await client.DeleteAsync($"api/unidadmedida/{unidadAEliminarId}");
+            var response = await client.DeleteAsync($"api/unidadmedida/{unidadAEliminarId}");
+
+            if (!response.IsSuccessStatusCode)
+            {
+                var contenido = await response.Content.ReadAsStringAsync();
+
+                try
+                {
+                    var errorObj = System.Text.Json.JsonSerializer.Deserialize<Dictionary<string, object>>(contenido);
+                    errorModal = errorObj?["mensaje"]?.ToString() ?? "No se pudo eliminar la unidad";
+                }
+                catch
+                {
+                    errorModal = contenido;
+                }
+
+                return;
+            }
+
             mostrarConfirmacion = false;
             await Recargar();
         }
         catch (Exception ex)
         {
-            error = $"Error al eliminar unidad: {ex.Message}";
+            errorModal = $"Error: {ex.Message}";
         }
-    }
-
-    public class UnidadDto
-    {
-        public int Id { get; set; }
-        public string Nombre { get; set; } = string.Empty;
-        public string Abreviatura { get; set; } = string.Empty;
+        finally
+        {
+            eliminando = false;
+        }
     }
 }

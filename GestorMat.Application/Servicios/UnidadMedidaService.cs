@@ -6,34 +6,60 @@ namespace GestorMat.Application.Servicios;
 
 public class UnidadMedidaService(IUnidadMedidaRepository repository)
 {
-    public async Task<List<UnidadMedidaDto>> ObtenerTodasAsync()
+    // 1 - CREAR
+    public async Task CrearAsyncService(CrearUnidadMedidaDto dto)
     {
-        List<UnidadMedida> unidades = await repository.ObtenerActivasAsync();
-
-        return unidades.Select(u => new UnidadMedidaDto
-        {
-            Id = u.Id_UnidadMedida,
-            Nombre = u.Nombre,
-            Abreviatura = u.Abreviatura
-        }).ToList();
-    }
-
-    public async Task CrearAsync(CrearUnidadMedidaDto dto)
-    {
-        UnidadMedida unidad = new UnidadMedida(dto.Nombre, dto.Abreviatura);
+        UnidadMedida unidad = new(dto.Nombre, dto.Abreviatura, dto.Activo);
         await repository.AgregarAsync(unidad);
     }
 
-    public async Task EditarAsync(int id, CrearUnidadMedidaDto dto)
+    // 2 - OBTENER TODOS
+    public async Task<List<UnidadMedidaDto>> ObtenerTodosAsyncService()
     {
-        UnidadMedida? unidad = await repository.ObtenerPorIdAsync(id);
+        List<UnidadMedida> unidades = await repository.ObtenerTodosAsync();
 
-        if (unidad == null)
+        return unidades.Select(u => new UnidadMedidaDto
         {
-            throw new Exception("Unidad no encontrada");
+            Id_UnidadMedida = u.Id_UnidadMedida,
+            Nombre = u.Nombre,
+            Abreviatura = u.Abreviatura,
+            Activo = u.Activo
+        }).ToList();
+    }
+
+    // 3 - OBTENER POR ID
+    public async Task<UnidadMedida?> ObtenerPorIdAsyncService(int id)
+    {
+        return await repository.ObtenerPorIdAsync(id);
+    }
+
+    // 4- ACTUALIZAR
+    public async Task ActualizarAsyncService(int id, CrearUnidadMedidaDto dto)
+    {
+        UnidadMedida? unidadMedida = await repository.ObtenerPorIdAsync(id);
+
+        if (unidadMedida == null)
+        {
+            throw new Exception("Unidad de medida no encontrada");
         }
 
-        unidad.Actualizar(dto.Nombre, dto.Abreviatura);
-        await repository.ActualizarAsync(unidad);
+        unidadMedida.ActualizarDatos(dto.Nombre, dto.Abreviatura, dto.Activo);
+
+
+        await repository.EditarAsync(unidadMedida);
     }
+
+    // 5 - ELIMINAR FISICO 
+    public async Task EliminarFisicoAsync(int id)
+    {
+        UnidadMedida? unidadMedida = await repository.ObtenerPorIdAsync(id);
+
+        if (unidadMedida == null)
+        {
+            throw new Exception("Unidad de medida no encontrada");
+        }
+
+        await repository.EliminarAsync(unidadMedida);
+    }
+
 }

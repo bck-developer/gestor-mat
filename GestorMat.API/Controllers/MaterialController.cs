@@ -1,5 +1,6 @@
-using GestorMat.Application.DTOs;
+using GestorMat.Application.DTOs.Material;
 using GestorMat.Application.Servicios;
+using GestorMat.Domain.Entidades;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -10,71 +11,50 @@ namespace GestorMat.API.Controllers
     [Authorize]
     public class MaterialController : ControllerBase
     {
-        private readonly MaterialService _materialService;
-        private readonly XmlService _xmlService;
+        private readonly MaterialService _service;
 
-        public MaterialController(MaterialService materialService, XmlService xmlService)
+        public MaterialController(MaterialService service)
         {
-            _materialService = materialService;
-            _xmlService = xmlService;
-        }
-
-        [HttpPost]
-        [Authorize]
-        public async Task<IActionResult> CrearMaterial([FromBody] CrearMaterialDto dto)
-        {
-            try
-            {
-                await _materialService.CrearMaterialAsync(dto);
-                return Created("", "Material creado correctamente");
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(new { message = ex.Message });
-            }
+            _service = service;
         }
 
         [HttpGet]
-        [Authorize]
-        public async Task<IActionResult> ObtenerMateriales()
+        public async Task<IActionResult> ObtenerTodos()
+            => Ok(await _service.ObtenerTodosAsyncService());
+
+        [HttpGet("{id}")]
+        public async Task<IActionResult> ObtenerPorId(int id)
         {
-            try
-            {
-                var materiales = await _materialService.ObtenerMaterialesAsync();
-                return Ok(materiales);
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(new { message = ex.Message });
-            }
+            MaterialDto? material = await _service.ObtenerPorIdAsyncService(id);
+
+            if (material == null)
+                return NotFound();
+
+            return Ok(material);
         }
 
-        [HttpPost("importar-xml")]
-        [Authorize]
-        public async Task<IActionResult> ImportarXml(IFormFile archivo)
+        [HttpPost]
+        public async Task<IActionResult> Crear(CrearMaterialDto dto)
         {
-            if (archivo == null || archivo.Length == 0)
-                return BadRequest("Archivo inválido");
+            if (dto.Id_UnidadMedida <= 0)
+                return BadRequest("Unidad de medida inválida");
 
-            try
-            {
-                using var stream = archivo.OpenReadStream();
-                var materialesXml = _xmlService.LeerMaterialesDesdeXml(stream);
+            await _service.CrearAsyncService(dto);
+            return Ok();
+        }
 
-                var dtos = materialesXml.Select(dto => new CrearMaterialDto
-                {
-                    Nombre = dto.Nombre,
-                    Precio = dto.Precio,
-                    IdUnidadMedida = dto.IdUnidadMedida
-                });
+        [HttpPut("{id}")]
+        public async Task<IActionResult> Actualizar(int id, ActualizarMaterialDto dto)
+        {
+            await _service.ActualizarAsyncService(id, dto);
+            return Ok();
+        }
 
-                await _materialService.ImportarVariosAsync(dtos);
-                return Ok("Materiales importados correctamente");
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(new { message = ex.Message });
-            }
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> Eliminar(int id)
+        {
+            await _service.EliminarAsyncService(id);
+            return NoContent();
         }
     }
 }

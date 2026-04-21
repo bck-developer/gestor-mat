@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace GestorMat.Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20260418175713_Initial")]
-    partial class Initial
+    [Migration("20260421043625_Inital")]
+    partial class Inital
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -34,19 +34,19 @@ namespace GestorMat.Infrastructure.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id_Deposito"));
 
                     b.Property<string>("CodigoDeposito")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
 
                     b.Property<string>("Direccion")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(120)
+                        .HasColumnType("nvarchar(120)");
 
                     b.Property<bool>("Habilitado")
                         .HasColumnType("bit");
 
                     b.Property<string>("Nombre")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(60)
+                        .HasColumnType("nvarchar(60)");
 
                     b.HasKey("Id_Deposito");
 
@@ -64,36 +64,90 @@ namespace GestorMat.Infrastructure.Migrations
                     b.Property<bool>("Activo")
                         .HasColumnType("bit");
 
-                    b.Property<int>("IdUnidadMedida")
+                    b.Property<string>("CodigoMaterial")
+                        .HasMaxLength(30)
+                        .HasColumnType("nvarchar(30)");
+
+                    b.Property<string>("Descripcion")
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)");
+
+                    b.Property<int>("Id_UnidadMedida")
                         .HasColumnType("int");
 
                     b.Property<string>("Nombre")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(80)
+                        .HasColumnType("nvarchar(80)");
+
+                    b.Property<bool>("PermiteStockNegativo")
+                        .HasColumnType("bit");
 
                     b.Property<decimal>("Precio")
                         .HasColumnType("decimal(18,2)");
 
+                    b.Property<double>("StockMinimo")
+                        .HasColumnType("float");
+
                     b.HasKey("Id_Material");
 
-                    b.HasIndex("IdUnidadMedida");
+                    b.HasIndex("Id_UnidadMedida");
 
                     b.ToTable("materiales", (string)null);
                 });
 
-            modelBuilder.Entity("GestorMat.Domain.Entidades.Rol", b =>
+            modelBuilder.Entity("GestorMat.Domain.Entidades.MovimientoMaterial", b =>
                 {
-                    b.Property<int>("IdRol")
+                    b.Property<int>("Id_MovimientoMaterial")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("IdRol"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id_MovimientoMaterial"));
+
+                    b.Property<double>("Cantidad")
+                        .HasColumnType("float");
+
+                    b.Property<string>("CodigoMovimiento")
+                        .HasMaxLength(30)
+                        .HasColumnType("nvarchar(30)");
+
+                    b.Property<DateTime>("Fecha")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int?>("Id_DepositoDestino")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Id_DepositoOrigen")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Id_Material")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Tipo")
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<string>("UserName")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.HasKey("Id_MovimientoMaterial");
+
+                    b.ToTable("MovimientosMaterial");
+                });
+
+            modelBuilder.Entity("GestorMat.Domain.Entidades.Rol", b =>
+                {
+                    b.Property<int>("Id_Rol")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id_Rol"));
 
                     b.Property<bool>("AccesoTotal")
                         .HasColumnType("bit");
 
                     b.Property<string>("Descripcion")
-                        .IsRequired()
                         .HasMaxLength(250)
                         .HasColumnType("nvarchar(250)");
 
@@ -102,7 +156,7 @@ namespace GestorMat.Infrastructure.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
-                    b.HasKey("IdRol");
+                    b.HasKey("Id_Rol");
 
                     b.ToTable("roles", (string)null);
                 });
@@ -117,6 +171,9 @@ namespace GestorMat.Infrastructure.Migrations
 
                     b.Property<decimal>("Cantidad")
                         .HasColumnType("decimal(18,2)");
+
+                    b.Property<DateTime>("FechaUltimaModificacion")
+                        .HasColumnType("datetime2");
 
                     b.Property<int>("Id_Deposito")
                         .HasColumnType("int");
@@ -143,15 +200,15 @@ namespace GestorMat.Infrastructure.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id_UnidadMedida"));
 
                     b.Property<string>("Abreviatura")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(10)
+                        .HasColumnType("nvarchar(10)");
 
                     b.Property<bool>("Activo")
                         .HasColumnType("bit");
 
                     b.Property<string>("Nombre")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(30)
+                        .HasColumnType("nvarchar(30)");
 
                     b.HasKey("Id_UnidadMedida");
 
@@ -160,11 +217,11 @@ namespace GestorMat.Infrastructure.Migrations
 
             modelBuilder.Entity("GestorMat.Domain.Entidades.Usuario", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<int>("Id_Usuario")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id_Usuario"));
 
                     b.Property<bool>("Activo")
                         .HasColumnType("bit");
@@ -177,22 +234,25 @@ namespace GestorMat.Infrastructure.Migrations
 
                     b.Property<string>("Mail")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
 
                     b.Property<string>("Nombre")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(60)
+                        .HasColumnType("nvarchar(60)");
 
                     b.Property<string>("PasswordHash")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)");
 
                     b.Property<string>("Username")
                         .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
-                    b.HasKey("Id");
+                    b.HasKey("Id_Usuario");
 
                     b.HasIndex("IdRol");
 
@@ -203,7 +263,7 @@ namespace GestorMat.Infrastructure.Migrations
                 {
                     b.HasOne("GestorMat.Domain.Entidades.UnidadMedida", "UnidadMedida")
                         .WithMany()
-                        .HasForeignKey("IdUnidadMedida")
+                        .HasForeignKey("Id_UnidadMedida")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 

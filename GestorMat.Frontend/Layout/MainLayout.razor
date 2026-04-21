@@ -6,37 +6,54 @@
 
 <header class="app-header">
     <div class="header-container">
+
+        <!-- IZQUIERDA -->
         <div class="header-left">
             <div class="brand">GestorMat</div>
+
             @if (MostrarVolver())
             {
-                <button class="btn btn-secondary btn-sm" @onclick="NavService.Volver" title="Volver a la página anterior">
-                    <span class="icon">⬅️</span> @TextoVolver()
+                <button class="btn btn-secondary btn-sm" @onclick="NavService.SubirNivel">
+                    ⬅️ Volver
                 </button>
             }
         </div>
 
+        <!-- CENTRO -->
         <div class="header-center">
-            <span class="breadcrumb-text" title="Ubicación actual">@Breadcrumb()</span>
+            <span class="breadcrumb-text">
+                @for (int i = 0; i < breadcrumbs.Count; i++)
+                {
+                    <span>@breadcrumbs[i]</span>
+                    @if (i < breadcrumbs.Count - 1)
+                    {
+                        <span> &gt; </span>
+                    }
+                }
+            </span>
         </div>
 
+        <!-- DERECHA -->
         <div class="header-right">
             <AuthorizeView>
                 <Authorized>
                     <div class="user-info">
                         <span class="user-icon">👤</span>
                         <span class="user-name">@usuario</span>
-                        <span class="user-role" title="Rol del usuario">(@rol)</span>
+                        <span class="user-role">(@rol)</span>
                     </div>
-                    <button class="btn-logout" @onclick="Logout" title="Cerrar sesión">
+
+                    <button class="btn-logout" @onclick="Logout">
                         🚪 Salir
                     </button>
                 </Authorized>
+
                 <NotAuthorized>
                     <span class="not-auth">No autenticado</span>
                 </NotAuthorized>
             </AuthorizeView>
         </div>
+
     </div>
 </header>
 
@@ -45,10 +62,10 @@
 </div>
 
 @code {
-    private string ruta = "";
     private string usuario = "";
     private string rol = "";
     private bool logueado = false;
+    private List<string> breadcrumbs = new();
 
     protected override async Task OnInitializedAsync()
     {
@@ -59,6 +76,7 @@
     private async Task CargarUsuario()
     {
         logueado = await AuthService.EstaLogueado();
+
         if (logueado)
         {
             var datos = await AuthService.ObtenerDatosUsuario();
@@ -69,88 +87,23 @@
 
     private void InicializarNavegacion()
     {
-        ActualizarRuta();
-        Navigation.LocationChanged += (_, __) => ActualizarRuta();
+        ActualizarUI();
+        Navigation.LocationChanged += (_, __) => ActualizarUI();
     }
 
-    private void ActualizarRuta()
+    private void ActualizarUI()
     {
-        ruta = NavService.GetCurrentRoute();
+        breadcrumbs = NavService.ObtenerBreadcrumb();
         StateHasChanged();
     }
 
-    private bool EsLogin() => ruta.Contains("login");
-    private bool EsHome() => string.IsNullOrEmpty(ruta);
-    private bool MostrarVolver() => logueado && !EsLogin() && !EsHome();
-
-    private string TextoVolver()
+    private bool MostrarVolver()
     {
-        // Gestión
-        if (ruta.Contains("gestion-"))
-            return "Volver a Inicio";
+        var ruta = NavService.GetCurrentRoute();
 
-        // Materiales
-        if (ruta.Contains("crear-material") || ruta.Contains("editar-material"))
-            return "Volver a Materiales";
-        if (ruta.Contains("materiales"))
-            return "Volver a Gestión";
-
-        // Unidades
-        if (ruta.Contains("crear-unidad") || ruta.Contains("editar-unidad"))
-            return "Volver a Unidades";
-        if (ruta.Contains("unidades"))
-            return "Volver a Gestión";
-
-        // Usuarios
-        if (ruta.Contains("crear-usuario") || ruta.Contains("editar-usuario"))
-            return "Volver a Usuarios";
-        if (ruta.Contains("usuarios"))
-            return "Volver a Gestión";
-
-        // Depósitos
-        if (ruta.Contains("crear-deposito") || ruta.Contains("editar-deposito"))
-            return "Volver a Depósitos";
-        if (ruta.Contains("depositos"))
-            return "Volver a Gestión";
-
-        return "Volver";
-    }
-
-    private string Breadcrumb()
-    {
-        // Home
-        if (EsHome()) return "🏠 Inicio";
-
-        // Gestión - Dashboards
-        if (ruta.Contains("gestion-materiales")) return "🏠 Inicio > 📦 Gestión de Materiales";
-        if (ruta.Contains("gestion-unidades")) return "🏠 Inicio > 📏 Gestión de Unidades";
-        if (ruta.Contains("gestion-usuarios")) return "🏠 Inicio > 👥 Gestión de Usuarios";
-        if (ruta.Contains("gestion-depositos")) return "🏠 Inicio > 🏭 Gestión de Depósitos";
-
-        // Materiales
-        if (ruta.Contains("crear-material")) return "🏠 Inicio > 📦 Materiales > ➕ Crear";
-        if (ruta.Contains("editar-material")) return "🏠 Inicio > 📦 Materiales > ✏️ Editar";
-        if (ruta.Contains("materiales")) return "🏠 Inicio > 📦 Materiales";
-
-        // Unidades
-        if (ruta.Contains("crear-unidad")) return "🏠 Inicio > 📏 Unidades > ➕ Nueva";
-        if (ruta.Contains("editar-unidad")) return "🏠 Inicio > 📏 Unidades > ✏️ Editar";
-        if (ruta.Contains("unidades")) return "🏠 Inicio > 📏 Unidades";
-
-        // Usuarios
-        if (ruta.Contains("crear-usuario")) return "🏠 Inicio > 👥 Usuarios > ➕ Nuevo";
-        if (ruta.Contains("editar-usuario")) return "🏠 Inicio > 👥 Usuarios > ✏️ Editar";
-        if (ruta.Contains("usuarios")) return "🏠 Inicio > 👥 Usuarios";
-
-        // Depósitos
-        if (ruta.Contains("crear-deposito")) return "🏠 Inicio > 🏭 Depósitos > ➕ Nuevo";
-        if (ruta.Contains("editar-deposito")) return "🏠 Inicio > 🏭 Depósitos > ✏️ Editar";
-        if (ruta.Contains("depositos")) return "🏠 Inicio > 🏭 Depósitos";
-
-        // Otros
-        if (ruta.Contains("login")) return "🔐 Login";
-
-        return "🏠 Inicio";
+        return logueado &&
+               !string.IsNullOrEmpty(ruta) &&
+               !ruta.Contains("login");
     }
 
     private async Task Logout()

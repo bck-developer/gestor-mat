@@ -1,4 +1,5 @@
 @page "/usuarios"
+@using GestorMat.Frontend.Pages.Gestion_de_Usuarios
 @inject AuthHttpClient AuthHttpClient
 @inject NavigationManager Navigation
 
@@ -50,22 +51,22 @@ else if (string.IsNullOrEmpty(error))
                             </td>
                             <td>
                                 <div class="action-buttons-inline">
-                                    <button class="btn btn-sm btn-warning" @onclick="() => Editar(u.Id)" title="Editar usuario">
+                                    <button class="btn btn-sm btn-warning" @onclick="() => Editar(u.Id_Usuario)" title="Editar usuario">
                                         ✏️ Editar
                                     </button>
                                     @if (u.Activo)
                                     {
-                                        <button class="btn btn-sm btn-danger" @onclick="() => ConfirmarInhabilitar(u.Id, u.Username)" title="Inhabilitar acceso">
+                                        <button class="btn btn-sm btn-danger" @onclick="() => ConfirmarInhabilitar(u.Id_Usuario, u.Username)" title="Inhabilitar acceso">
                                             🔒 Inhabilitar
                                         </button>
                                     }
                                     else
                                     {
-                                        <button class="btn btn-sm btn-success" @onclick="() => Rehabilitar(u.Id)" title="Habilitar acceso">
+                                        <button class="btn btn-sm btn-success" @onclick="() => Rehabilitar(u.Id_Usuario)" title="Habilitar acceso">
                                             🔓 Habilitar
                                         </button>
                                     }
-                                    <button class="btn btn-sm btn-danger btn-outline" @onclick="() => ConfirmarEliminar(u.Id, u.Username)" title="Eliminar definitivamente">
+                                    <button class="btn btn-sm btn-danger btn-outline" @onclick="() => ConfirmarEliminar(u.Id_Usuario, u.Username)" title="Eliminar definitivamente">
                                         🗑️ Eliminar
                                     </button>
                                 </div>
@@ -212,13 +213,4 @@ else
         }
     }
 
-    public class UsuarioDto
-    {
-        public int Id { get; set; }
-        public string Username { get; set; } = string.Empty;
-        public string Nombre { get; set; } = string.Empty;
-        public string Mail { get; set; } = string.Empty;
-        public string Rol { get; set; } = string.Empty;
-        public bool Activo { get; set; }
-    }
 }

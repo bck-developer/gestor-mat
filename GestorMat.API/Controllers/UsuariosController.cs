@@ -1,26 +1,20 @@
 using GestorMat.Application.DTOs;
 using GestorMat.Application.Servicios;
+using GestorMat.Domain.Entidades;
 using Microsoft.AspNetCore.Mvc;
 
 namespace GestorMat.API.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class UsuariosController : ControllerBase
+    public class UsuariosController(UsuarioService service) : ControllerBase
     {
-        private readonly UsuarioService _service;
-
-        public UsuariosController(UsuarioService service)
-        {
-            _service = service;
-        }
-
         [HttpPost]
         public async Task<IActionResult> Crear([FromBody] CrearUsuarioDto dto)
         {
             try
             {
-                await _service.CrearAsync(dto);
+                await service.CrearAsyncService(dto);
                 return Ok();
             }
             catch (Exception ex)
@@ -30,11 +24,11 @@ namespace GestorMat.API.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> Obtener()
+        public async Task<IActionResult> ObtenerTodos()
         {
             try
             {
-                return Ok(await _service.ObtenerAsync());
+                return Ok(await service.ObtenerTodosAsyncService());
             }
             catch (Exception ex)
             {
@@ -45,57 +39,50 @@ namespace GestorMat.API.Controllers
         [HttpGet("{id}")]
         public async Task<IActionResult> ObtenerPorId(int id)
         {
-            var usuario = await _service.ObtenerEntidadPorIdAsync(id);
+            Usuario? usuario = await service.ObtenerPorIdAsyncService(id);
 
             if (usuario == null)
+            {
                 return NotFound();
+            }
 
             return Ok(new UsuarioDto
             {
-                Id = usuario.Id,
+                Id_Usuario = usuario.Id_Usuario,
                 Username = usuario.Username,
                 Nombre = usuario.Nombre,
                 Mail = usuario.Mail,
-                IdRol = usuario.IdRol
+                IdRol = usuario.IdRol,
+                Activo = usuario.Activo
             });
+        }
+
+        [HttpPut("{id}")]
+        public async Task<IActionResult> Actualizar(int id, CrearUsuarioDto dto)
+        {
+            await service.ActualizarAsyncService(id, dto);
+            return Ok();
         }
 
         [HttpDelete("{id}")]
         public async Task<IActionResult> Eliminar(int id)
         {
-            await _service.EliminarAsync(id);
+            await service.EliminarFisicoAsync(id);
             return NoContent();
         }
 
-        [HttpPut("{id}")]
-        public async Task<IActionResult> Editar(int id, CrearUsuarioDto dto)
-        {
-            await _service.EditarAsync(id, dto);
-            return Ok();
-        }
-
-        // INHABILITAR
         [HttpPatch("{id}/inhabilitar")]
         public async Task<IActionResult> Inhabilitar(int id)
         {
-            await _service.InhabilitarAsync(id);
+            await service.InhabilitarAsyncService(id);
             return Ok();
         }
 
-        // REHABILITAR
         [HttpPatch("{id}/rehabilitar")]
         public async Task<IActionResult> Rehabilitar(int id)
         {
-            await _service.RehabilitarAsync(id);
+            await service.RehabilitarAsyncService(id);
             return Ok();
-        }
-
-        // ELIMINAR FISICO (opcional)
-        [HttpDelete("{id}/fisico")]
-        public async Task<IActionResult> EliminarFisico(int id)
-        {
-            await _service.EliminarFisicoAsync(id);
-            return NoContent();
         }
     }
 }

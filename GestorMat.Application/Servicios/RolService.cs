@@ -12,7 +12,7 @@ public class RolService(IRolRepository repo)
 
         return [.. roles.Select(r => new RolDto
         {
-            IdRol = r.IdRol,
+            IdRol = r.Id_Rol,
             RolName = r.RolName
         })];
     }

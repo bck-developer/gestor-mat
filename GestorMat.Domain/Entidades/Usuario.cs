@@ -1,25 +1,36 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace GestorMat.Domain.Entidades;
 
 public class Usuario
 {
-    public int Id { get; private set; }
+    [Key]
+    public int Id_Usuario { get; private set; }
+
+    [StringLength(14, MinimumLength = 3)]
     public string Username { get; private set; }
+
+    [StringLength(255)]
     public string PasswordHash { get; private set; }
+
+    [StringLength(60)]
     public string Nombre { get; private set; }
+
+    [StringLength(100)]
+    [EmailAddress]
     public string Mail { get; private set; }
+
     public DateTime FechaAlta { get; private set; }
+
     public int IdRol { get; private set; }
+
     public bool Activo { get; private set; }
 
     public Rol Rol { get; private set; }
 
     private Usuario() { }
 
-    public Usuario(string username, string passwordHash, string nombre, string mail, int idRol)
+    public Usuario(string username, string passwordHash, string nombre, string mail, int idRol, bool activo)
     {
         Username = username;
         PasswordHash = passwordHash;
@@ -27,10 +38,10 @@ public class Usuario
         Mail = mail;
         IdRol = idRol;
         FechaAlta = DateTime.UtcNow;
-        Activo = true;
+        Activo = activo;
     }
 
-    public void ActualizarDatos(string username, string nombre, string mail, int idRol)
+    public void ActualizarDatos(string username, string nombre, string mail, int idRol, bool activo)
     {
         if (string.IsNullOrWhiteSpace(username))
             throw new Exception("Username inválido");
@@ -48,6 +59,7 @@ public class Usuario
         Nombre = nombre;
         Mail = mail;
         IdRol = idRol;
+        Activo = activo;
     }
 
     public void CambiarPassword(string passwordHash)

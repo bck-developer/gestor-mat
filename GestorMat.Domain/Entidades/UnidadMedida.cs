@@ -1,38 +1,47 @@
-﻿using System;
+﻿using System.ComponentModel.DataAnnotations;
 
-namespace GestorMat.Domain.Entidades
+namespace GestorMat.Domain.Entidades;
+
+public class UnidadMedida
 {
-    public class UnidadMedida
+    [Key]
+    public int Id_UnidadMedida { get; private set; }
+
+    [StringLength(30)]
+    public string Nombre { get; private set; }
+
+    [StringLength(10)]
+    public string Abreviatura { get; private set; }
+
+    public bool Activo { get; private set; }
+
+
+    public UnidadMedida(string nombre, string abreviatura, bool activo)
     {
+        if (string.IsNullOrWhiteSpace(nombre))
+            throw new ArgumentException("El nombre es obligatorio");
 
-            public int Id_UnidadMedida { get; private set; }
-            public string Nombre { get; private set; }
-            public string Abreviatura { get; private set; }
-            public bool Activo { get; private set; }
-        
+        if (string.IsNullOrWhiteSpace(abreviatura))
+            throw new ArgumentException("La abreviatura es obligatoria");
 
-        public UnidadMedida(string nombre, string abreviatura)
-        {
-            if (string.IsNullOrWhiteSpace(nombre))
-                throw new ArgumentException("El nombre es obligatorio");
+        Nombre = nombre;
+        Abreviatura = abreviatura;
+        Activo = activo;
+    }
 
-            if (string.IsNullOrWhiteSpace(abreviatura))
-                throw new ArgumentException("La abreviatura es obligatoria");
+    public void Desactivar()
+    {
+        Activo = false;
+    }
+    public void Activar()
+    {
+        Activo = true;
+    }
 
-            Nombre = nombre;
-            Abreviatura = abreviatura;
-            Activo = true;
-        }
-
-        public void Desactivar()
-        {
-            Activo = false;
-        }
-
-        public void Actualizar(string nombre, string abreviatura)
-        {
-            Nombre = nombre;
-            Abreviatura = abreviatura;
-        }
+    public void ActualizarDatos(string nombre, string abreviatura, bool activo)
+    {
+        Nombre = nombre;
+        Abreviatura = abreviatura;
+        Activo = activo;
     }
 }

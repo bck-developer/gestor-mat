@@ -18,19 +18,99 @@ namespace GestorMat.Frontend.Services
         {
             var uri = _nav.Uri;
             var baseUri = _nav.BaseUri;
-            if (uri.StartsWith(baseUri))
-                return uri.Substring(baseUri.Length).TrimStart('/');
-            return uri;
+
+            return uri.StartsWith(baseUri)
+                ? uri.Substring(baseUri.Length).Trim('/')
+                : uri;
         }
 
-        public async Task Volver()
+        public void SubirNivel()
         {
-            await _js.InvokeVoidAsync("history.go", -1);
+            var ruta = GetCurrentRoute();
+
+            if (string.IsNullOrEmpty(ruta))
+            {
+                _nav.NavigateTo("/");
+                return;
+            }
+
+            var partes = ruta.Split('/', StringSplitOptions.RemoveEmptyEntries);
+
+            if (partes.Length <= 1)
+            {
+                _nav.NavigateTo("/");
+                return;
+            }
+
+            var nuevaRuta = string.Join("/", partes.Take(partes.Length - 1));
+            _nav.NavigateTo("/" + nuevaRuta);
         }
 
-        public void IrHome()
+        public List<string> ObtenerBreadcrumb()
         {
-            _nav.NavigateTo("/");
+            var ruta = GetCurrentRoute();
+
+            if (ruta.Contains("login"))
+            {
+                return new List<string> { "🔐 Login" };
+            }
+
+            var resultado = new List<string>
+            {
+                "🏠 Inicio"
+            };
+
+            if (string.IsNullOrEmpty(ruta))
+                return resultado;
+
+            var partes = ruta.Split('/', StringSplitOptions.RemoveEmptyEntries);
+
+            foreach (var parte in partes)
+            {
+                if (int.TryParse(parte, out _))
+                    continue;
+
+                resultado.Add(TraducirRuta(parte));
+            }
+
+            return resultado;
         }
+
+        private string TraducirRuta(string ruta)
+        {
+            const string crear = "➕ Crear";
+            const string editar = "✏️ Editar";
+
+            return ruta switch
+            {
+                "unidades" => "📏 Unidades",
+                "crear-unidad" => crear,
+                "editar-unidad" => editar,
+
+                "materiales" => "📦 Materiales",
+                "crear-material" => crear,
+                "editar-material" => editar,
+
+                "usuarios" => "👥 Usuarios",
+                "crear-usuario" => crear,
+                "editar-usuario" => editar,
+
+                "depositos" => "🏭 Depósitos",
+                "crear-deposito" => crear,
+                "editar-deposito" => editar,
+
+                "roles" => "🧩 Roles",
+                "crear-rol" => crear,
+                "editar-rol" => editar,
+
+                "login" => "🔐 Login",
+
+                _ => Capitalizar(ruta)
+            };
+        }
+
+        private string Capitalizar(string texto) => string.IsNullOrEmpty(texto)
+                ? texto
+                : char.ToUpper(texto[0]) + texto.Substring(1);
     }
 }

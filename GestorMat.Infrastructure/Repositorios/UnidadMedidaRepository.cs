@@ -5,39 +5,53 @@ using Microsoft.EntityFrameworkCore;
 
 namespace GestorMat.Infrastructure.Repositorios
 {
-    public class UnidadMedidaRepository : IUnidadMedidaRepository
+    public class UnidadMedidaRepository(AppDbContext context) : IUnidadMedidaRepository
     {
-        private readonly AppDbContext _context;
-
-        public UnidadMedidaRepository(AppDbContext context)
+        public async Task AgregarAsync(UnidadMedida unidad)
         {
-            _context = context;
+            context.UnidadesMedida.Add(unidad);
+            await context.SaveChangesAsync();
         }
 
-        public async Task<List<UnidadMedida>> ObtenerActivasAsync()
+        public async Task<List<UnidadMedida>> ObtenerTodosAsync()
         {
-            return await _context.UnidadesMedida
+            return await context.UnidadesMedida
                 .AsNoTracking()
-                .Where(u => u.Activo)
                 .ToListAsync();
         }
 
         public async Task<UnidadMedida?> ObtenerPorIdAsync(int id)
         {
-            return await _context.UnidadesMedida
+            return await context.UnidadesMedida
                 .FirstOrDefaultAsync(u => u.Id_UnidadMedida == id);
         }
 
-        public async Task AgregarAsync(UnidadMedida unidad)
+        public async Task EditarAsync(UnidadMedida unidad)
         {
-            _context.UnidadesMedida.Add(unidad);
-            await _context.SaveChangesAsync();
+            if (!unidad.Activo)
+            {
+                bool HayMaterialesAsociados = await context.Materiales.AnyAsync(m => m.Id_UnidadMedida == unidad.Id_UnidadMedida);
+
+                if (HayMaterialesAsociados)
+                {
+                    throw new InvalidOperationException("No se puede desactivar la unidad de medida porque hay materiales asociados.");
+                }
+            }
+            context.UnidadesMedida.Update(unidad);
+            await context.SaveChangesAsync();
         }
 
-        public async Task ActualizarAsync(UnidadMedida unidad)
+        public async Task EliminarAsync(UnidadMedida unidad)
         {
-            _context.UnidadesMedida.Update(unidad);
-            await _context.SaveChangesAsync();
+            bool HayMaterialesAsociados = await context.Materiales.AnyAsync(m => m.Id_UnidadMedida == unidad.Id_UnidadMedida);
+
+            if (HayMaterialesAsociados)
+            {
+                throw new InvalidOperationException("No se puede eliminar la unidad de medida porque hay materiales asociados.");
+            }
+
+            context.UnidadesMedida.Remove(unidad);
+            await context.SaveChangesAsync();
         }
     }
 }
