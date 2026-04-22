@@ -36,7 +36,7 @@ public class MovimientoMaterial
         string tipo,
         double cantidad,
         DateTime fecha,
-        string UserName)
+        string userName)
     {
         Id_Material = idMaterial;
         Id_DepositoOrigen = idDepositoOrigen;
@@ -45,6 +45,6 @@ public class MovimientoMaterial
         Tipo = tipo;
         Cantidad = cantidad;
         Fecha = fecha;
-        this.UserName = UserName;
+        UserName = userName;
     }
 }
