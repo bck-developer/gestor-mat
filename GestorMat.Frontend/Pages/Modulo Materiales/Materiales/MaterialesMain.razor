@@ -1,18 +1,35 @@
 @page "/materiales"
 @inject AuthHttpClient AuthHttpClient
-@* @inject MaterialService MaterialService *@
 @inject NavigationManager Navigation
+@inject IJSRuntime JS
 
 <h1 class="page-title">Materiales</h1>
 
 <div class="button-group mb-3">
     <button class="btn btn-primary" @onclick="IrCrear">
-        <span class="icon">➕</span> Nuevo Material
+        ➕ Nuevo Material
     </button>
+
     <button class="btn btn-secondary" @onclick="Recargar">
-        <span class="icon">🔄</span> Recargar
+        🔄 Recargar
     </button>
+
+    <button class="btn btn-success" @onclick="DescargarPlantilla" disabled="@descargando">
+        @(descargando ? "Descargando..." : "📥 Plantilla Excel")
+    </button>
+
+    <label class="btn btn-outline-primary">
+        📤 Cargar Excel
+        <InputFile OnChange="SubirExcel" hidden />
+    </label>
 </div>
+
+@if (!string.IsNullOrEmpty(mensaje))
+{
+    <div class="alert @(tipoMensaje == "success" ? "alert-success" : "alert-danger")">
+        @((MarkupString)mensaje)
+    </div>
+}
 
 @if (cargando)
 {
@@ -22,7 +39,14 @@
 }
 else if (string.IsNullOrEmpty(error))
 {
-    @if (materiales != null && materiales.Count > 0)
+    @if (cargandoArchivo)
+    {
+        <div class="loading mt-2">
+            <p>Procesando archivo...</p>
+        </div>
+    }
+
+    @if (materiales.Any())
     {
         <div class="table-responsive">
             <table class="table table-striped table-hover">
@@ -77,7 +101,7 @@ else
     <div class="modal-overlay" @onclick="CancelarEliminar">
         <div class="modal-content" @onclick:stopPropagation>
             <div class="modal-header">
-                <h5>Confirmar Eliminación</h5>
+                <h5>Confirmar eliminación</h5>
                 <button type="button" class="close" @onclick="CancelarEliminar">&times;</button>
             </div>
             <div class="modal-body">
@@ -95,14 +119,15 @@ else
     private List<MaterialDto> materiales = new();
     private bool cargando = true;
     private string error = string.Empty;
+    private bool descargando = false;
+    private bool cargandoArchivo = false;
+    private string mensaje = string.Empty;
+    private string tipoMensaje = string.Empty;
     private bool mostrarConfirmacion = false;
     private int materialAEliminarId;
     private string materialAEliminarNombre = string.Empty;
 
-    protected override async Task OnInitializedAsync()
-    {
-        await Recargar();
-    }
+    protected override async Task OnInitializedAsync() => await Recargar();
 
     private async Task Recargar()
     {
@@ -127,7 +152,6 @@ else
     }
 
     private void IrCrear() => Navigation.NavigateTo("/crear-material");
-
     private void IrEditar(int id) => Navigation.NavigateTo($"/editar-material/{id}");
 
     private void ConfirmarEliminar(int id, string nombre)
@@ -137,10 +161,7 @@ else
         mostrarConfirmacion = true;
     }
 
-    private void CancelarEliminar()
-    {
-        mostrarConfirmacion = false;
-    }
+    private void CancelarEliminar() => mostrarConfirmacion = false;
 
     private async Task EliminarConfirmado()
     {
@@ -157,12 +178,90 @@ else
         }
     }
 
-    public class MaterialDto
+    private async Task DescargarPlantilla()
     {
-        public int Id_Material { get; set; }
-        public string Nombre { get; set; } = string.Empty;
-        public decimal Precio { get; set; }
-        public int IdUnidadMedida { get; set; }
-        public string UnidadMedida { get; set; } = string.Empty;
+        try
+        {
+            descargando = true;
+
+            HttpClient client = await AuthHttpClient.GetClient();
+            HttpResponseMessage response = await client.GetAsync("api/material-excel/plantilla", HttpCompletionOption.ResponseHeadersRead);
+
+            response.EnsureSuccessStatusCode();
+
+            Stream stream = await response.Content.ReadAsStreamAsync();
+
+            using MemoryStream ms = new MemoryStream();
+            await stream.CopyToAsync(ms);
+
+            IJSObjectReference module = await JS.InvokeAsync<IJSObjectReference>("import", "./js/download.js");
+
+            await module.InvokeVoidAsync(
+                "downloadFileFromStream",
+                "PlantillaMateriales.xlsx",
+                ms.ToArray()
+            );
+        }
+        catch (Exception ex)
+        {
+            mensaje = $"Error al descargar: {ex.Message}";
+            tipoMensaje = "error";
+        }
+        finally
+        {
+            descargando = false;
+        }
+    }
+
+    private async Task SubirExcel(InputFileChangeEventArgs e)
+    {
+        mensaje = string.Empty;
+
+        try
+        {
+            var file = e.File;
+
+            if (!file.Name.EndsWith(".xlsx"))
+            {
+                mensaje = "Archivo inválido. Solo se admiten .xlsx";
+                tipoMensaje = "error";
+                return;
+            }
+
+            cargandoArchivo = true;
+
+            MultipartFormDataContent content = new MultipartFormDataContent();
+            content.Add(new StreamContent(file.OpenReadStream()), "file", file.Name);
+
+            HttpClient client = await AuthHttpClient.GetClient();
+            HttpResponseMessage response = await client.PostAsync("api/material-excel/importar", content);
+
+            MaterialImportResultDto? result = await response.Content.ReadFromJsonAsync<MaterialImportResultDto>();
+
+            if (result != null)
+            {
+                mensaje = $"✔ {result.Exitosos} cargados | ❌ {result.Fallidos} errores";
+
+                if (result.Errores.Any())
+                {
+                    mensaje += "<br/><br/>";
+                    mensaje += string.Join("<br/>",
+                        result.Errores.Select(e => $"Fila {e.Fila}: {e.Mensaje}"));
+                }
+
+                tipoMensaje = result.Fallidos > 0 ? "error" : "success";
+
+                await Recargar();
+            }
+        }
+        catch (Exception ex)
+        {
+            mensaje = ex.Message;
+            tipoMensaje = "error";
+        }
+        finally
+        {
+            cargandoArchivo = false;
+        }
     }
 }

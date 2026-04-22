@@ -2,6 +2,7 @@ using GestorMat.Application.Interfaces;
 using GestorMat.Application.Servicios;
 using GestorMat.Infrastructure.Persistencia;
 using GestorMat.Infrastructure.Repositorios;
+using GestorMat.Infrastructure.Services;
 using GestorMat.Infrastructure.Servicios;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
@@ -48,6 +49,8 @@ builder.Services.AddScoped<XmlService>();
 builder.Services.AddScoped<UsuarioService>();
 builder.Services.AddScoped<RolService>();
 builder.Services.AddScoped<DepositoService>();
+builder.Services.AddScoped<IExcelService, ExcelService>();
+builder.Services.AddScoped<MaterialImportService>();
 
 // Repositorios
 builder.Services.AddScoped<IRolRepository, RolRepository>();
