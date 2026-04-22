@@ -41,24 +41,38 @@ builder.Services.AddDbContext<AppDbContext>(options =>
         builder.Configuration.GetConnectionString("DefaultConnection")
     ));
 
-// Servicios
+// ==========================
+// Application Services
+// ==========================
 builder.Services.AddScoped<AuthService>();
 builder.Services.AddScoped<MaterialService>();
 builder.Services.AddScoped<UnidadMedidaService>();
-builder.Services.AddScoped<XmlService>();
 builder.Services.AddScoped<UsuarioService>();
 builder.Services.AddScoped<RolService>();
 builder.Services.AddScoped<DepositoService>();
-builder.Services.AddScoped<IExcelService, ExcelService>();
+builder.Services.AddScoped<MovimientoMaterialService>();
 builder.Services.AddScoped<MaterialImportService>();
+builder.Services.AddScoped<XmlService>();
 
-// Repositorios
-builder.Services.AddScoped<IRolRepository, RolRepository>();
-builder.Services.AddScoped<IUsuarioRepository, UsuarioRepository>();
+// ==========================
+// Infrastructure Services
+// ==========================
+builder.Services.AddScoped<IExcelService, ExcelService>();
+builder.Services.AddScoped<IPasswordHasher, PasswordHasher>();
+
+// ==========================
+// Repositories + UoW
+// ==========================
+builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+
 builder.Services.AddScoped<IMaterialRepository, MaterialRepository>();
 builder.Services.AddScoped<IUnidadMedidaRepository, UnidadMedidaRepository>();
 builder.Services.AddScoped<IDepositoRepository, DepositoRepository>();
-builder.Services.AddScoped<IPasswordHasher, PasswordHasher>();
+builder.Services.AddScoped<IUsuarioRepository, UsuarioRepository>();
+builder.Services.AddScoped<IRolRepository, RolRepository>();
+builder.Services.AddScoped<IMovimientoMaterialRepository, MovimientoMaterialRepository>();
+builder.Services.AddScoped<ISaldoRepository, SaldoRepository>();
+
 
 // JWT
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
