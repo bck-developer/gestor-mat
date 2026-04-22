@@ -11,7 +11,7 @@ public class ExcelService : IExcelService
         using var wb = new XLWorkbook();
         var ws = wb.Worksheets.Add("Materiales");
 
-        ws.Cell(1, 1).Value = "Codigo Material";
+        ws.Cell(1, 1).Value = "Código Material";
         ws.Cell(1, 2).Value = "Nombre";
         ws.Cell(1, 3).Value = "Precio";
         ws.Cell(1, 4).Value = "Unidad de medida";

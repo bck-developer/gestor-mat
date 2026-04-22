@@ -101,7 +101,7 @@ else
     <div class="modal-overlay" @onclick="CancelarEliminar">
         <div class="modal-content" @onclick:stopPropagation>
             <div class="modal-header">
-                <h5>Confirmar Eliminación</h5>
+                <h5>Confirmar eliminación</h5>
                 <button type="button" class="close" @onclick="CancelarEliminar">&times;</button>
             </div>
             <div class="modal-body">
@@ -185,7 +185,7 @@ else
             descargando = true;
 
             HttpClient client = await AuthHttpClient.GetClient();
-            HttpResponseMessage response = await client.GetAsync("api/material/plantilla", HttpCompletionOption.ResponseHeadersRead);
+            HttpResponseMessage response = await client.GetAsync("api/material-excel/plantilla", HttpCompletionOption.ResponseHeadersRead);
 
             response.EnsureSuccessStatusCode();
 
@@ -223,7 +223,7 @@ else
 
             if (!file.Name.EndsWith(".xlsx"))
             {
-                mensaje = "Archivo inválido. Solo .xlsx";
+                mensaje = "Archivo inválido. Solo se admiten .xlsx";
                 tipoMensaje = "error";
                 return;
             }
@@ -234,7 +234,7 @@ else
             content.Add(new StreamContent(file.OpenReadStream()), "file", file.Name);
 
             HttpClient client = await AuthHttpClient.GetClient();
-            HttpResponseMessage response = await client.PostAsync("api/material/importar", content);
+            HttpResponseMessage response = await client.PostAsync("api/material-excel/importar", content);
 
             MaterialImportResultDto? result = await response.Content.ReadFromJsonAsync<MaterialImportResultDto>();
 
