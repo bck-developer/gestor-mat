@@ -16,10 +16,15 @@
         <div class="icon">📏</div>
         <div class="label">Unidades de Medida</div>
     </div>
+    <div class="dashboard-card" @onclick="IrMovimientoMaterial">
+        <div class="icon"> ⬆️📦</div>
+        <div class="label">Movimiento de Materiales</div>
+    </div>
 </div>
 
 @code {
     void IrMateriales() => Navigation.NavigateTo("/materiales");
     void IrDepositos() => Navigation.NavigateTo("/depositos");
     void IrUnidades() => Navigation.NavigateTo("/unidades");
+    void IrMovimientoMaterial() => Navigation.NavigateTo("/movimientos-material");
 }

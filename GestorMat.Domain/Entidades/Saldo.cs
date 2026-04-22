@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Text;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace GestorMat.Domain.Entidades
 {
@@ -17,7 +14,7 @@ namespace GestorMat.Domain.Entidades
         public Deposito Deposito { get; private set; }
 
 
-        private Saldo() { } // EF
+        private Saldo() { }
 
         public Saldo(int idMaterial, int idDeposito, double cantidad, DateTime fecha)
         {
@@ -25,6 +22,18 @@ namespace GestorMat.Domain.Entidades
             Id_Deposito = idDeposito;
             Cantidad = cantidad;
             FechaUltimaModificacion = fecha;
+        }
+
+        public void Incrementar(double cantidad)
+        {
+            Cantidad += cantidad;
+            FechaUltimaModificacion = DateTime.Now;
+        }
+
+        public void Decrementar(double cantidad)
+        {
+            Cantidad -= cantidad;
+            FechaUltimaModificacion = DateTime.Now;
         }
     }
 }
