@@ -7,7 +7,7 @@ namespace GestorMat.API.Controllers;
 
 [ApiController]
 [Route("api/movimientos")]
-[Authorize]
+//[Authorize]
 public class MovimientoMaterialController(MovimientoMaterialService service) : ControllerBase
 {
     [HttpPost]

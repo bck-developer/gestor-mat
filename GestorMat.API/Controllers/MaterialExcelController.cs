@@ -9,7 +9,7 @@ namespace GestorMat.API.Controllers;
 
 [ApiController]
 [Route("api/material-excel")]
-[Authorize]
+//[Authorize]
 public class MaterialExcelController(
     IExcelService excelService,
     MaterialImportService importService,

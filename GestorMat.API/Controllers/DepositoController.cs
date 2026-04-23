@@ -7,7 +7,7 @@ namespace GestorMat.API.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-[Authorize]
+//[Authorize]
 public class DepositoController(DepositoService depositoService) : ControllerBase
 {
     [HttpGet]

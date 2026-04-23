@@ -6,7 +6,7 @@ namespace GestorMat.API.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    [Authorize(Roles = "admin")]
+    //[Authorize(Roles = "admin")]
     public class RolesController : ControllerBase
     {
         private readonly RolService _service;

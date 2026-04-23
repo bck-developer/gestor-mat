@@ -8,7 +8,7 @@ namespace GestorMat.API.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    [Authorize]
+    //[Authorize]
     public class UnidadMedidaController(UnidadMedidaService service) : ControllerBase
     {
         [HttpPost]
