@@ -19,120 +19,129 @@
     <p>Cargando...</p>
 }
 else
-{
-    <EditForm EditContext="editContext" OnValidSubmit="Guardar">
-        <DataAnnotationsValidator />
+{        
+    <div class="form-container">
+        <div class="card">
+            <div class="card-body">
+                <EditForm EditContext="editContext" OnValidSubmit="Guardar">
+                    <DataAnnotationsValidator />
+                    <!-- CODIGO -->
+                    <div class="mb-3">
+                        <label>Código *</label>
+                        <InputText class="form-control"
+                                   @bind-Value="modelo.CodigoMovimiento"
+                                   disabled="@(Id != 0)" />
+                        <ValidationMessage For="@(() => modelo.CodigoMovimiento)" />
+                    </div>
+                    <!-- MATERIAL -->
+                    <div class="mb-3">
+                        <label>Material *</label>
+                        <InputSelect class="form-control"
+                                     @bind-Value="modelo.Id_Material"
+                                     disabled="@(Id != 0)">
+                            <option value="0">Seleccionar</option>
+                            @foreach (MaterialDto m in materiales)
+                            {
+                    
+                                <option value="@m.Id_Material">@m.CodigoMaterial</option>
+                            }
+            
+                        </InputSelect>
+                        <ValidationMessage For="@(() => modelo.Id_Material)" />
+                    </div>
+                    <!-- TIPO -->
+                    <div class="mb-3">
+                        <label>Tipo *</label>
+                        <InputSelect class="form-control"
+                                     @bind-Value="TipoSeleccionado"
+                                     disabled="@(Id != 0)">
+                            <option value="">Seleccionar</option>
+                            <option value="Ingreso">Ingreso</option>
+                            <option value="Egreso">Egreso</option>
+                            <option value="Ingreso/Egreso">Ingreso/Egreso</option>
+                        </InputSelect>
+                        <ValidationMessage For="@(() => modelo.Tipo)" />
+                    </div>
+                    <!-- ORIGEN -->
+                    <div class="mb-3">
+                        <label>Depósito Origen *</label>
+                        <InputSelect class="form-control"
+                                     @bind-Value="modelo.Id_DepositoOrigen"
+                                     disabled="@(Id != 0)">
+                            <option value="0">Seleccionar</option>
+                            @foreach (DepositoDto d in depositos)
+                            {
+                    
+                                <option value="@d.Id_Deposito">@d.CodigoDeposito</option>
+                            }
+            
+                        </InputSelect>
+                        <ValidationMessage For="@(() => modelo.Id_DepositoOrigen)" />
+                    </div>
+                    <!-- DESTINO -->
+                    <div class="mb-3">
+                        <label>Depósito Destino @(usaDestino ? "*" : "")</label>
+                        <InputSelect class="form-control"
+                                     @bind-Value="modelo.Id_DepositoDestino"
+                                     disabled="@(!(usaDestino && Id == 0))">
+                            <option value="0">Seleccionar</option>
+                            @foreach (DepositoDto d in depositos)
+                            {
+                    
+                                <option value="@d.Id_Deposito">@d.CodigoDeposito</option>
+                            }
+            
+                        </InputSelect>
 
-        <!-- CODIGO -->
-        <div class="mb-3">
-            <label>Código *</label>
-            <InputText class="form-control"
-                       @bind-Value="modelo.CodigoMovimiento"
-                       disabled="@(Id != 0)" />
-            <ValidationMessage For="@(() => modelo.CodigoMovimiento)" />
+                        @if (usaDestino)
+                        {
+                
+                            <ValidationMessage For="@(() => modelo.Id_DepositoDestino)" />
+                        }
+        
+                    </div>
+                    <!-- CANTIDAD -->
+                    <div class="mb-3">
+                        <label>Cantidad *</label>
+                        <InputNumber class="form-control"
+                                     @bind-Value="modelo.Cantidad"
+                                     disabled="@(Id != 0)" />
+                        <ValidationMessage For="@(() => modelo.Cantidad)" />
+                    </div>
+                    <!-- FECHA -->
+                    <div class="mb-3">
+                        <label>Fecha *</label>
+                        <InputDate class="form-control"
+                                   @bind-Value="modelo.Fecha"
+                                   disabled="@(Id != 0)" />
+                        <ValidationMessage For="@(() => modelo.Fecha)" />
+                    </div>
+                    <!-- BOTONES -->
+                    <div class="mt-3">
+                        @if (Id == 0)
+                        {
+                
+                            <button class="btn btn-primary" disabled="@(!formValido)">
+                                💾 Guardar
+                            </button>
+                        }
+
+            
+                        <button class="btn btn-secondary ms-2" @onclick="Volver">
+                            ⬅ Volver
+                        </button>
+                    </div>
+
+                    @if (!string.IsNullOrEmpty(error))
+                    {
+            
+                        <div class="alert alert-danger mt-3">@error</div>
+                    }
+                                    
+                </EditForm>
+            </div>
         </div>
-
-        <!-- MATERIAL -->
-        <div class="mb-3">
-            <label>Material *</label>
-            <InputSelect class="form-control"
-                         @bind-Value="modelo.Id_Material"
-                         disabled="@(Id != 0)">
-                <option value="0">Seleccionar</option>
-                @foreach (MaterialDto m in materiales)
-                {
-                    <option value="@m.Id_Material">@m.CodigoMaterial</option>
-                }
-            </InputSelect>
-            <ValidationMessage For="@(() => modelo.Id_Material)" />
-        </div>
-
-        <!-- TIPO -->
-        <div class="mb-3">
-            <label>Tipo *</label>
-            <InputSelect class="form-control"
-                         @bind-Value="TipoSeleccionado"
-                         disabled="@(Id != 0)">
-                <option value="">Seleccionar</option>
-                <option value="Ingreso">Ingreso</option>
-                <option value="Egreso">Egreso</option>
-                <option value="Ingreso/Egreso">Ingreso/Egreso</option>
-            </InputSelect>
-            <ValidationMessage For="@(() => modelo.Tipo)" />
-        </div>
-
-        <!-- ORIGEN -->
-        <div class="mb-3">
-            <label>Depósito Origen *</label>
-            <InputSelect class="form-control"
-                         @bind-Value="modelo.Id_DepositoOrigen"
-                         disabled="@(Id != 0)">
-                <option value="0">Seleccionar</option>
-                @foreach (DepositoDto d in depositos)
-                {
-                    <option value="@d.Id_Deposito">@d.CodigoDeposito</option>
-                }
-            </InputSelect>
-            <ValidationMessage For="@(() => modelo.Id_DepositoOrigen)" />
-        </div>
-
-        <!-- DESTINO -->
-        <div class="mb-3">
-            <label>Depósito Destino @(usaDestino ? "*" : "")</label>
-            <InputSelect class="form-control"
-                         @bind-Value="modelo.Id_DepositoDestino"
-                         disabled="@(!(usaDestino && Id == 0))">
-                <option value="0">Seleccionar</option>
-                @foreach (DepositoDto d in depositos)
-                {
-                    <option value="@d.Id_Deposito">@d.CodigoDeposito</option>
-                }
-            </InputSelect>
-
-            @if (usaDestino)
-            {
-                <ValidationMessage For="@(() => modelo.Id_DepositoDestino)" />
-            }
-        </div>
-
-        <!-- CANTIDAD -->
-        <div class="mb-3">
-            <label>Cantidad *</label>
-            <InputNumber class="form-control"
-                         @bind-Value="modelo.Cantidad"
-                         disabled="@(Id != 0)" />
-            <ValidationMessage For="@(() => modelo.Cantidad)" />
-        </div>
-
-        <!-- FECHA -->
-        <div class="mb-3">
-            <label>Fecha *</label>
-            <InputDate class="form-control"
-                       @bind-Value="modelo.Fecha"
-                       disabled="@(Id != 0)" />
-            <ValidationMessage For="@(() => modelo.Fecha)" />
-        </div>
-
-        <!-- BOTONES -->
-        <div class="mt-3">
-            @if (Id == 0)
-            {
-                <button class="btn btn-primary" disabled="@(!formValido)">
-                    💾 Guardar
-                </button>
-            }
-
-            <button class="btn btn-secondary ms-2" @onclick="Volver">
-                ⬅ Volver
-            </button>
-        </div>
-
-        @if (!string.IsNullOrEmpty(error))
-        {
-            <div class="alert alert-danger mt-3">@error</div>
-        }
-
-    </EditForm>
+    </div>
 }
 
 @code {
@@ -237,15 +246,6 @@ else
         error = string.Empty;
 
         HttpClient client = await AuthHttpClient.GetClient();
-
-        // Bueg : Rompe al buscar un codigo existente. Revisar luego
-        // MovimientoMaterialDto? existe = await client.GetFromJsonAsync<MovimientoMaterialDto?>($"api/movimientos/existe-codigo/{modelo.CodigoMovimiento}");
-
-        // if (existe != null)
-        // {
-        //     error = "Ya existe un movimiento con ese código.";
-        //     return;
-        // }
 
         string username = await ObtenerUsuarioActual();
 

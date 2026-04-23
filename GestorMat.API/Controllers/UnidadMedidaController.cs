@@ -24,11 +24,11 @@ namespace GestorMat.API.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> ObtenerTodos()
+        public async Task<IActionResult> ObtenerTodos(bool soloActivos)
         {
             try
             {
-                return Ok(await service.ObtenerTodosAsyncService());
+                return Ok(await service.ObtenerTodosAsyncService(soloActivos));
             }
             catch (Exception ex)
             {
@@ -58,7 +58,6 @@ namespace GestorMat.API.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> Actualizar(int id, CrearUnidadMedidaDto dto)
         {
-
             try
             {
                 await service.ActualizarAsyncService(id, dto);
@@ -69,7 +68,6 @@ namespace GestorMat.API.Controllers
             {
                 return BadRequest(new { mensaje = ex.Message });
             }
-
 
         }
 

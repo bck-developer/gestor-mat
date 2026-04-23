@@ -13,13 +13,13 @@ namespace GestorMat.Infrastructure.Repositorios
             await context.SaveChangesAsync();
         }
 
-        public async Task<List<UnidadMedida>> ObtenerTodosAsync()
+        public async Task<List<UnidadMedida>> ObtenerTodosAsync(bool soloActivos = true)
         {
             return await context.UnidadesMedida
                 .AsNoTracking()
                 .ToListAsync();
         }
-
+         
         public async Task<UnidadMedida?> ObtenerPorIdAsync(int id)
         {
             return await context.UnidadesMedida
@@ -53,5 +53,6 @@ namespace GestorMat.Infrastructure.Repositorios
             context.UnidadesMedida.Remove(unidad);
             await context.SaveChangesAsync();
         }
+
     }
 }

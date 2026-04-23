@@ -6,64 +6,90 @@
 
 <h1 class="page-title">⬆️📦 Movimientos de Material</h1>
 
-<div class="d-flex justify-content-between mb-3">
+<!-- BOTONES DE ACCIÓN -->
+<div class="d-flex justify-content-between align-items-center mb-4">
     <div>
-        <button class="btn btn-primary me-2" @onclick="IrCrear">
+        <button class="btn btn-primary btn-lg me-2" @onclick="IrCrear">
             ➕ Nuevo Movimiento
         </button>
 
-        <button class="btn btn-secondary" @onclick="Recargar">
+        <button class="btn btn-secondary btn-lg" @onclick="Recargar">
             🔄 Recargar
         </button>
     </div>
 
-    <!-- 🔎 BUSCADOR -->
-    <div style="width:300px;">
-        <input class="form-control"
+
+</div>
+
+<!-- SECCIÓN DE FILTROS -->
+<div class="card mb-4 p-4 bg-light">
+    <h5 class="mb-3">🔍 Filtros</h5>
+
+        <!-- 🔎 BUSCADOR -->
+    <div style="width:350px;">
+        <input class="form-control form-control-lg"
                placeholder="🔎 Buscar..."
                @bind="textoBusqueda"
                @bind:event="oninput"
                @onkeydown="OnBuscarKeyDown" />
     </div>
+
+    <!-- FILA 1: TIPO Y MATERIAL -->
+    <div class="row g-3 mb-4">
+        <div class="col-md-5">
+            <label class="form-label">Tipo de Movimiento</label>
+            <InputSelect class="form-control" @bind-Value="filtroTipo">
+                <option value="">Todos los tipos</option>
+                <option>Ingreso</option>
+                <option>Egreso</option>
+                <option>Ingreso/Egreso</option>
+            </InputSelect>
+
+            <label class="form-label">Material</label>
+            <InputSelect class="form-control" @bind-Value="filtroMaterialId">
+                <option value="0">Todos los materiales</option>
+                @foreach (MaterialDto m in materiales)
+                {
+                    <option value="@m.Id_Material">@m.CodigoMaterial - @m.Nombre</option>
+                }
+            </InputSelect>
+        </div>
+    </div>
+
+    <!-- FILA 2: FECHAS -->
+    <div class="row g-3 mb-4">
+        <div class="col-md-5">
+            <label class="form-label">Desde (Fecha)</label>
+            <InputDate class="form-control form-control-lg" @bind-Value="fechaDesde" />
+        </div>
+
+        <div class="col-md-5">
+            <label class="form-label">Hasta (Fecha)</label>
+            <InputDate class="form-control form-control-lg" @bind-Value="fechaHasta" />
+        </div>
+
+        <div class="col-md-2 d-flex align-items-end">
+            <div class="w-100">
+                <button class="btn btn-primary w-100 btn-lg" @onclick="AplicarFiltros">
+                    🔎 Filtrar
+                </button>
+            </div>
+        </div>
+        <!-- BOTÓN LIMPIAR -->
+        <div class="row">
+            <div class="col-12">
+                <button class="btn btn-outline-secondary btn-lg w-100" @onclick="LimpiarFiltros">
+                    ✕ Limpiar Filtros
+                </button>
+            </div>
+        </div>
+    </div>
+
+
+
 </div>
 
-<!-- FILTROS COMPACTOS -->
-<div class="row mb-3">
-
-    <div class="col-md-2">
-        <InputSelect class="form-control" @bind-Value="filtroTipo">
-            <option value="">Tipo</option>
-            <option>Ingreso</option>
-            <option>Egreso</option>
-            <option>Ingreso/Egreso</option>
-        </InputSelect>
-    </div>
-
-    <div class="col-md-3">
-        <InputSelect class="form-control" @bind-Value="filtroMaterialId">
-            <option value="0">Material</option>
-            @foreach (MaterialDto m in materiales)
-            {
-                <option value="@m.Id_Material">@m.CodigoMaterial</option>
-            }
-        </InputSelect>
-    </div>
-
-    <div class="col-md-2">
-        <InputDate class="form-control" @bind-Value="fechaDesde" />
-    </div>
-
-    <div class="col-md-2">
-        <InputDate class="form-control" @bind-Value="fechaHasta" />
-    </div>
-
-    <div class="col-md-3 text-end">
-        <button class="btn btn-sm btn-primary me-2" @onclick="AplicarFiltros">Filtrar</button>
-        <button class="btn btn-sm btn-secondary" @onclick="LimpiarFiltros">Limpiar</button>
-    </div>
-
-</div>
-
+<!-- TABLA DE RESULTADOS -->
 @if (cargando)
 {
     <p>Cargando...</p>
@@ -78,8 +104,8 @@ else if (listaFiltrada.Count == 0)
 }
 else
 {
-    <table class="table table-hover">
-        <thead>
+    <table class="table table-hover table-striped">
+        <thead class="table-dark">
             <tr>
                 <th>Código</th>
                 <th>Material</th>
@@ -106,19 +132,19 @@ else
         </tbody>
     </table>
 
-    <div class="mt-3 text-center">
+    <div class="mt-4 text-center">
         <button class="btn btn-secondary btn-sm me-2"
                 @onclick="PaginaAnterior"
                 disabled="@(paginaActual == 1)">
-            ⬅
+            ⬅ Anterior
         </button>
 
-        Página @paginaActual de @totalPaginas
+        <span class="badge bg-primary p-2">Página @paginaActual de @totalPaginas</span>
 
         <button class="btn btn-secondary btn-sm ms-2"
                 @onclick="PaginaSiguiente"
                 disabled="@(paginaActual == totalPaginas)">
-            ➡
+            Siguiente ➡
         </button>
     </div>
 }

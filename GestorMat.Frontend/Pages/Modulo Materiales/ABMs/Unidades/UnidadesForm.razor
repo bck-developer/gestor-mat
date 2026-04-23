@@ -23,14 +23,12 @@ else
                     <DataAnnotationsValidator />
                     <ValidationSummary />
 
-                    <!-- NOMBRE -->
                     <div class="form-group">
                         <label for="nombre">Nombre:</label>
                         <InputText id="nombre" class="form-control" @bind-Value="modelo.Nombre" />
                         <ValidationMessage For="@(() => modelo.Nombre)" class="text-danger" />
                     </div>
 
-                    <!-- ABREVIATURA -->
                     <div class="form-group">
                         <label for="abreviatura">Abreviatura:</label>
                         <InputText id="abreviatura" class="form-control"
@@ -38,7 +36,6 @@ else
                         <ValidationMessage For="@(() => modelo.Abreviatura)" class="text-danger" />
                     </div>
 
-                    <!-- ACTIVO -->
                     <div class="form-group">
                         <label>
                             <InputCheckbox @bind-Value="modelo.Activo" />
@@ -46,7 +43,6 @@ else
                         </label>
                     </div>
 
-                    <!-- BOTONES -->
                     <div class="button-group mt-3">
                         <button type="submit" class="btn btn-primary" disabled="@guardando">
                             @if (guardando)
@@ -64,7 +60,6 @@ else
                         </button>
                     </div>
 
-                    <!-- MENSAJES -->
                     @if (!string.IsNullOrEmpty(error))
                     {
                         <div class="alert alert-danger mt-3">
@@ -131,6 +126,10 @@ else
             {
                 cargando = false;
             }
+        }
+        else
+        {
+            modelo.Activo = true;
         }
     }
 

@@ -21,7 +21,7 @@ public class MaterialExcelController(
     [HttpGet("plantilla")]
     public async Task<IActionResult> DescargarPlantilla()
     {
-        List<UnidadMedidaDto> unidades = await unidadService.ObtenerTodosAsyncService();
+        List<UnidadMedidaDto> unidades = await unidadService.ObtenerTodosAsyncService(true);
         List<string> nombres = unidades.Select(u => u.Nombre).ToList();
 
         byte[] file = excelService.GenerarPlantillaMateriales(nombres);

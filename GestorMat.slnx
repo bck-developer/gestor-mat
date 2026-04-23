@@ -4,4 +4,5 @@
   <Project Path="GestorMat.Domain/GestorMat.Domain.csproj" />
   <Project Path="GestorMat.Frontend/GestorMat.Frontend.csproj" Id="9829f0ff-354f-4083-a539-0033c66ea0f6" />
   <Project Path="GestorMat.Infrastructure/GestorMat.Infrastructure.csproj" />
+  <Project Path="GestorMat.Tests/GestorMat.Tests.csproj" />
 </Solution>
