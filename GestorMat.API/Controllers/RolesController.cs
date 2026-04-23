@@ -1,10 +1,12 @@
 using GestorMat.Application.Servicios;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace GestorMat.API.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
+    [Authorize(Roles = "admin")]
     public class RolesController : ControllerBase
     {
         private readonly RolService _service;

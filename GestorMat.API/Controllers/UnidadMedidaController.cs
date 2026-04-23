@@ -1,12 +1,14 @@
 using GestorMat.Application.DTOs;
 using GestorMat.Application.Servicios;
 using GestorMat.Domain.Entidades;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace GestorMat.API.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
+    [Authorize]
     public class UnidadMedidaController(UnidadMedidaService service) : ControllerBase
     {
         [HttpPost]
