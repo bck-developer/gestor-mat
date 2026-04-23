@@ -10,7 +10,7 @@
         <div class="col-md-4">
             <label>Material</label>
             <InputSelect class="form-control" @bind-Value="filtroMaterial">
-                <option value="">Todos</option>
+                <option value="@((int?)null)">Todos</option>
                 @foreach (MaterialDto m in materiales)
                 {
                     <option value="@m.Id_Material">
@@ -28,7 +28,7 @@
         <div class="col-md-4">
             <label>Depósito</label>
             <InputSelect class="form-control" @bind-Value="filtroDeposito">
-                <option value="">Todos</option>
+                <option value="@((int?)null)">Todos</option>
                 @foreach (DepositoDto d in depositos)
                 {
                     <option value="@d.Id_Deposito">
@@ -169,6 +169,7 @@ else
             $"&incluirDepositosInactivos={incluyeDepInactivos}";
 
         byte[] fileBytes = await client.GetByteArrayAsync(url);
+
 
         await JS.InvokeVoidAsync("downloadFile", "ReporteSaldos.pdf", fileBytes);
     }

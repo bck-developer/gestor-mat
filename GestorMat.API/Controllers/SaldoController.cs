@@ -42,14 +42,14 @@ public class SaldoController : ControllerBase
 
     [HttpGet("pdf")]
     public async Task<IActionResult> ExportarPdf(
-        [FromQuery] int? idMaterial,
-        [FromQuery] int? idDeposito,
-        [FromQuery] bool incluirMaterialesInactivos = false,
-        [FromQuery] bool incluirDepositosInactivos = false)
+    [FromQuery] int? idMaterial,
+    [FromQuery] int? idDeposito,
+    [FromQuery] bool incluirMaterialesInactivos = false,
+    [FromQuery] bool incluirDepositosInactivos = false)
     {
         try
         {
-            SaldoQuery query = new()
+            SaldoQuery query = new SaldoQuery
             {
                 IdMaterial = idMaterial,
                 IdDeposito = idDeposito,
@@ -65,6 +65,7 @@ public class SaldoController : ControllerBase
             }
 
             string filtros = ConstruirTextoFiltros(
+                data,
                 idMaterial,
                 idDeposito,
                 incluirMaterialesInactivos,
@@ -82,17 +83,85 @@ public class SaldoController : ControllerBase
     }
 
     private string ConstruirTextoFiltros(
-        int? idMaterial,
-        int? idDeposito,
-        bool incluirMatInactivos,
-        bool incluirDepInactivos)
+    List<SaldoDto> data,
+    int? idMaterial,
+    int? idDeposito,
+    bool incluirMatInactivos,
+    bool incluirDepInactivos)
     {
-        string material = idMaterial.HasValue ? idMaterial.Value.ToString() : "Todos";
-        string deposito = idDeposito.HasValue ? idDeposito.Value.ToString() : "Todos";
+        string material = "Todos";
+        string deposito = "Todos";
+
+        if (idMaterial.HasValue)
+        {
+            SaldoDto? item = data.FirstOrDefault();
+            material = item != null ? item.CodigoMaterial : idMaterial.Value.ToString();
+        }
+
+        if (idDeposito.HasValue)
+        {
+            SaldoDto? item = data.FirstOrDefault();
+            deposito = item != null ? item.CodigoDeposito : idDeposito.Value.ToString();
+        }
 
         string matEstado = incluirMatInactivos ? "Incluye inactivos" : "Solo activos";
         string depEstado = incluirDepInactivos ? "Incluye inactivos" : "Solo activos";
 
         return $"Material: {material} | Depósito: {deposito} | {matEstado} | {depEstado}";
     }
+    //[HttpGet("pdf")]
+    //public async Task<IActionResult> ExportarPdf(
+    //    [FromQuery] int? idMaterial,
+    //    [FromQuery] int? idDeposito,
+    //    [FromQuery] bool incluirMaterialesInactivos = false,
+    //    [FromQuery] bool incluirDepositosInactivos = false)
+    //{
+    //    try
+    //    {
+    //        SaldoQuery query = new()
+    //        {
+    //            IdMaterial = idMaterial,
+    //            IdDeposito = idDeposito,
+    //            IncluirMaterialesInactivos = incluirMaterialesInactivos,
+    //            IncluirDepositosInactivos = incluirDepositosInactivos
+    //        };
+
+    //        List<SaldoDto> data = await saldoRepository.ObtenerSaldos(query);
+
+    //        if (data == null || data.Count == 0)
+    //        {
+    //            return BadRequest("No hay datos para generar el reporte");
+    //        }
+
+    //        string filtros = ConstruirTextoFiltros(
+    //            idMaterial,
+    //            idDeposito,
+    //            incluirMaterialesInactivos,
+    //            incluirDepositosInactivos
+    //        );
+
+    //        byte[] pdf = pdfService.GenerarReporte(data, filtros);
+
+    //        return File(pdf, "application/pdf", "ReporteSaldos.pdf");
+    //    }
+    //    catch (Exception ex)
+    //    {
+    //        return StatusCode(500, $"Error generando PDF: {ex.Message}");
+    //    }
+    //}
+
+    //private string ConstruirTextoFiltros(
+    //    int? idMaterial,
+    //    int? idDeposito,
+    //    bool incluirMatInactivos,
+    //    bool incluirDepInactivos)
+    //{
+    //    string material = idMaterial.HasValue ? idMaterial.Value.ToString() : "Todos";
+    //    string deposito = idDeposito.HasValue ? idDeposito.Value.ToString() : "Todos";
+
+    //    string matEstado = incluirMatInactivos ? "Incluye inactivos" : "Solo activos";
+    //    string depEstado = incluirDepInactivos ? "Incluye inactivos" : "Solo activos";
+
+    //    return $"Material: {material} | Depósito: {deposito} | {matEstado} | {depEstado}";
+    //}
 }
