@@ -54,12 +54,34 @@ namespace GestorMat.Frontend.Services
 
         private IEnumerable<Claim> ParseClaims(string jwt)
         {
-            var payload = jwt.Split('.')[1];
-            var jsonBytes = Convert.FromBase64String(PadBase64(payload));
-            var keyValuePairs = System.Text.Json.JsonSerializer.Deserialize<Dictionary<string, object>>(jsonBytes);
+            string payload = jwt.Split('.')[1];
+            byte[] jsonBytes = Convert.FromBase64String(PadBase64(payload));
 
-            return keyValuePairs?.Select(kvp => new Claim(kvp.Key, kvp.Value?.ToString() ?? string.Empty))
-                   ?? Enumerable.Empty<Claim>();
+            Dictionary<string, object>? keyValuePairs =
+                System.Text.Json.JsonSerializer.Deserialize<Dictionary<string, object>>(jsonBytes);
+
+            List<Claim> claims = new List<Claim>();
+
+            foreach (KeyValuePair<string, object> kvp in keyValuePairs ?? new())
+            {
+                string key = kvp.Key;
+                string value = kvp.Value?.ToString() ?? string.Empty;
+
+                if (key == "role" || key == "roles")
+                {
+                    claims.Add(new Claim(ClaimTypes.Role, value));
+                }
+                else if (key == "unique_name" || key == "name")
+                {
+                    claims.Add(new Claim(ClaimTypes.Name, value));
+                }
+                else
+                {
+                    claims.Add(new Claim(key, value));
+                }
+            }
+
+            return claims;
         }
 
         private string PadBase64(string base64)

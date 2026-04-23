@@ -12,10 +12,12 @@
             <div class="label">Gestión de Materiales</div>
         </div>
    
-        <div class="dashboard-card" @onclick="IrUsuarios">
-            <div class="icon">👥</div>
-            <div class="label">Gestión de Usuarios</div>
-        </div>
+        <AuthorizeView Roles="admin">
+            <div class="dashboard-card" @onclick="IrUsuarios">
+                <div class="icon">👥</div>
+                <div class="label">Gestión de Usuarios</div>
+            </div>
+        </AuthorizeView>
     </div>
 }
 

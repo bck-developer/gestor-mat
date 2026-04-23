@@ -52,7 +52,7 @@ public class SaldoRepository(AppDbContext context) : ISaldoRepository
                 UnidadMedida = u.Abreviatura,
 
                 CantidadDisponible = s.Cantidad,
-                StockMinimo = m.StockMinimo,               
+                StockMinimo = m.StockMinimo,
 
                 FechaUltimoMovimiento = s.FechaUltimaModificacion
             };
