@@ -53,13 +53,14 @@ builder.Services.AddScoped<DepositoService>();
 builder.Services.AddScoped<MovimientoMaterialService>();
 builder.Services.AddScoped<MaterialImportService>();
 builder.Services.AddScoped<XmlService>();
+builder.Services.AddScoped<PdfSaldoService>();
 
 // ==========================
 // Infrastructure Services
 // ==========================
 builder.Services.AddScoped<IExcelService, ExcelService>();
 builder.Services.AddScoped<IPasswordHasher, PasswordHasher>();
-
+builder.Services.AddScoped<IPdfSaldoService, PdfSaldoService>();
 // ==========================
 // Repositories + UoW
 // ==========================

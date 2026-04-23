@@ -10,3 +10,20 @@
     anchor.remove();
     URL.revokeObjectURL(url);
 }
+
+window.downloadFile = (fileName, byteArray) => {
+    const blob = new Blob([new Uint8Array(byteArray)], { type: "application/pdf" });
+
+    const url = URL.createObjectURL(blob);
+
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = fileName ?? 'archivo.pdf';
+
+    document.body.appendChild(link);
+    link.click();
+
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+
+};

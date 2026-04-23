@@ -1,0 +1,208 @@
+﻿@page "/saldos-materiales"
+@inject AuthHttpClient AuthHttpClient
+@inject IJSRuntime JS
+
+<h1 class="page-title">📊 Saldos de Materiales</h1>
+
+<div class="card p-3 mb-3">
+    <div class="row">
+
+        <div class="col-md-4">
+            <label>Material</label>
+            <InputSelect class="form-control" @bind-Value="filtroMaterial">
+                <option value="@((int?)null)">Todos</option>
+                @foreach (MaterialDto m in materiales)
+                {
+                    <option value="@m.Id_Material">
+                        @m.CodigoMaterial - @m.Nombre
+                    </option>
+                }
+            </InputSelect>
+
+            <div class="form-check mt-1">
+                <InputCheckbox @bind-Value="incluyeMatInactivos" />
+                <label>Incluir inactivos</label>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <label>Depósito</label>
+            <InputSelect class="form-control" @bind-Value="filtroDeposito">
+                <option value="@((int?)null)">Todos</option>
+                @foreach (DepositoDto d in depositos)
+                {
+                    <option value="@d.Id_Deposito">
+                        @d.CodigoDeposito - @d.Nombre
+                    </option>
+                }
+            </InputSelect>
+
+            <div class="form-check mt-1">
+                <InputCheckbox @bind-Value="incluyeDepInactivos" />
+                <label>Incluir inactivos</label>
+            </div>
+        </div>
+
+        <div class="col-md-4 d-flex align-items-end">
+            <button class="btn btn-primary me-2" @onclick="Buscar">
+                🔍 Buscar
+            </button>
+
+            <button class="btn btn-danger" @onclick="ExportarPdf">
+                📄 PDF
+            </button>
+        </div>
+    </div>
+</div>
+
+@if (cargando)
+{
+    <p>Cargando...</p>
+}
+else if (lista.Count == 0)
+{
+    <div class="alert alert-info">Sin resultados</div>
+}
+else
+{
+    <table class="table table-hover">
+        <thead>
+            <tr>
+                <th>Material</th>
+                <th>Depósito</th>
+                <th>UM</th>
+                <th>Disponible</th>
+                <th>Mínimo Stock Permitido</th>
+                <th>Diferencia</th>
+                <th>Últ. Movimiento</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (SaldoDto s in lista)
+            {
+                <tr>
+                    <td>@($"{s.CodigoMaterial} - {s.NombreMaterial}")</td>
+                    <td>@($"{s.CodigoDeposito} - {s.NombreDeposito}")</td>
+                    <td>@s.UnidadMedida</td>
+                    <td>@s.CantidadDisponible</td>
+                    <td>@s.StockMinimo</td>
+
+                    <td class="@ObtenerClaseDiferencia(s)">
+                        @(s.CantidadDisponible - s.StockMinimo)
+                    </td>
+
+                    <td>@s.FechaUltimoMovimiento.ToShortDateString()</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+
+    private List<SaldoDto> lista = new List<SaldoDto>();
+    private List<MaterialDto> materiales = new List<MaterialDto>();
+    private List<DepositoDto> depositos = new List<DepositoDto>();
+
+    private int? filtroMaterial = null;
+    private int? filtroDeposito = null;
+
+    private bool incluyeMatInactivos = false;
+    private bool incluyeDepInactivos = false;
+
+    private bool cargando = true;
+
+    protected override async Task OnInitializedAsync()
+    {
+        HttpClient client = await AuthHttpClient.GetClient();
+
+        materiales = await client.GetFromJsonAsync<List<MaterialDto>>("api/material")
+            ?? new List<MaterialDto>();
+
+        depositos = await client.GetFromJsonAsync<List<DepositoDto>>("api/deposito")
+            ?? new List<DepositoDto>();
+
+        cargando = false;
+    }
+
+    private async Task Buscar()
+    {
+        cargando = true;
+
+        HttpClient client = await AuthHttpClient.GetClient();
+
+        string url =
+            $"api/saldo?idMaterial={filtroMaterial}&idDeposito={filtroDeposito}" +
+            $"&incluirMaterialesInactivos={incluyeMatInactivos}" +
+            $"&incluirDepositosInactivos={incluyeDepInactivos}";
+
+        lista = await client.GetFromJsonAsync<List<SaldoDto>>(url)
+            ?? new List<SaldoDto>();
+
+        cargando = false;
+    }
+
+    private string ObtenerClaseDiferencia(SaldoDto s)
+    {
+        double diferencia = s.CantidadDisponible - s.StockMinimo;
+
+        if (diferencia < 0)
+            return "text-danger fw-bold";
+
+        double porcentaje = s.StockMinimo == 0
+            ? 0
+            : (diferencia / s.StockMinimo) * 100;
+
+        if (porcentaje <= 5)
+            return "text-warning fw-bold";
+
+        return string.Empty;
+    }
+
+    private async Task ExportarPdf()
+    {
+        HttpClient client = await AuthHttpClient.GetClient();
+
+        string url =
+            $"api/saldo/pdf?idMaterial={filtroMaterial}&idDeposito={filtroDeposito}" +
+            $"&incluirMaterialesInactivos={incluyeMatInactivos}" +
+            $"&incluirDepositosInactivos={incluyeDepInactivos}";
+
+        byte[] fileBytes = await client.GetByteArrayAsync(url);
+
+
+        await JS.InvokeVoidAsync("downloadFile", "ReporteSaldos.pdf", fileBytes);
+    }
+
+    public class SaldoDto
+    {
+        public int IdMaterial { get; set; }
+        public string CodigoMaterial { get; set; } = string.Empty;
+        public string NombreMaterial { get; set; } = string.Empty;
+
+        public int IdDeposito { get; set; }
+        public string CodigoDeposito { get; set; } = string.Empty;
+        public string NombreDeposito { get; set; } = string.Empty;
+
+        public string UnidadMedida { get; set; } = string.Empty;
+
+        public double CantidadDisponible { get; set; }
+        public double StockMinimo { get; set; }
+
+        public DateTime FechaUltimoMovimiento { get; set; }
+    }
+
+    public class MaterialDto
+    {
+        public int Id_Material { get; set; }
+        public string CodigoMaterial { get; set; } = string.Empty;
+        public string Nombre { get; set; } = string.Empty;
+    }
+
+    public class DepositoDto
+    {
+        public int Id_Deposito { get; set; }
+        public string CodigoDeposito { get; set; } = string.Empty;
+        public string Nombre { get; set; } = string.Empty;
+    }
+}
