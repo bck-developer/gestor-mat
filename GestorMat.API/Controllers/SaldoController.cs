@@ -1,12 +1,14 @@
 ﻿using GestorMat.Application.DTOs.Saldo;
 using GestorMat.Application.Interfaces;
 using GestorMat.Application.Queries;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace GestorMat.Api.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
+[Authorize]
 public class SaldoController(
     ISaldoRepository saldoRepository,
     IPdfSaldoService pdfService) : ControllerBase
