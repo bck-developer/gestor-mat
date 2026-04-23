@@ -8,11 +8,11 @@ namespace GestorMat.API.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    [Authorize(Roles = "admin")]
+    //[Authorize(Roles = "admin")]
     public class UsuariosController(UsuarioService service) : ControllerBase
     {
         [HttpPost]
-        public async Task<IActionResult> Crear([FromBody] CrearUsuarioDto dto)
+        public async Task<IActionResult> Crear(CrearUsuarioDto dto)
         {
             try
             {

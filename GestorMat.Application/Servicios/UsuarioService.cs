@@ -14,7 +14,7 @@ public class UsuarioService(IUsuarioRepository repository, IPasswordHasher hashe
             throw new Exception("La contraseña es obligatoria");
         }
 
-        if (dto.IdRol == 0)
+        if (dto.Id_Rol == 0)
         {
             throw new Exception("Debe seleccionar un rol");
         }
@@ -26,7 +26,7 @@ public class UsuarioService(IUsuarioRepository repository, IPasswordHasher hashe
             hash,
             dto.Nombre,
             dto.Mail,
-            dto.IdRol,
+            dto.Id_Rol,
             dto.Activo
         );
 
@@ -65,7 +65,7 @@ public class UsuarioService(IUsuarioRepository repository, IPasswordHasher hashe
             throw new Exception("Usuario no encontrado");
         }
 
-        usuario.ActualizarDatos(dto.Username, dto.Nombre, dto.Mail, dto.IdRol, dto.Activo);
+        usuario.ActualizarDatos(dto.Username, dto.Nombre, dto.Mail, dto.Id_Rol, dto.Activo);
 
         if (!string.IsNullOrWhiteSpace(dto.Password))
         {

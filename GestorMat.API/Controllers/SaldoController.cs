@@ -8,7 +8,7 @@ namespace GestorMat.Api.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-[Authorize]
+//[Authorize]
 public class SaldoController(
     ISaldoRepository saldoRepository,
     IPdfSaldoService pdfService) : ControllerBase

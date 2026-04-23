@@ -28,7 +28,7 @@ public class UsuarioServiceTests
             Password = "Password123",
             Nombre = "John Doe",
             Mail = "john@example.com",
-            IdRol = 1,
+            Id_Rol = 1,
             Activo = true
         };
 
@@ -42,7 +42,7 @@ public class UsuarioServiceTests
             u.Username == dto.Username &&
             u.Nombre == dto.Nombre &&
             u.Mail == dto.Mail &&
-            u.IdRol == dto.IdRol &&
+            u.IdRol == dto.Id_Rol &&
             u.Activo)), Times.Once);
     }
 
@@ -56,7 +56,7 @@ public class UsuarioServiceTests
             Password = string.Empty,
             Nombre = "John Doe",
             Mail = "john@example.com",
-            IdRol = 1,
+            Id_Rol = 1,
             Activo = true
         };
 
@@ -75,7 +75,7 @@ public class UsuarioServiceTests
             Password = null,
             Nombre = "John Doe",
             Mail = "john@example.com",
-            IdRol = 1,
+            Id_Rol = 1,
             Activo = true
         };
 
@@ -93,7 +93,7 @@ public class UsuarioServiceTests
             Password = "Password123",
             Nombre = "John Doe",
             Mail = "john@example.com",
-            IdRol = 0,
+            Id_Rol = 0,
             Activo = true
         };
 
@@ -111,7 +111,7 @@ public class UsuarioServiceTests
             Password = "Admin123",
             Nombre = "Administrador",
             Mail = "admin@example.com",
-            IdRol = 1,
+            Id_Rol = 1,
             Activo = false
         };
 
@@ -229,7 +229,7 @@ public class UsuarioServiceTests
             Password = "123",
             Nombre = "Nuevo",
             Mail = "nuevo@mail.com",
-            IdRol = 2,
+            Id_Rol = 2,
             Activo = true
         };
 
@@ -256,7 +256,7 @@ public class UsuarioServiceTests
             Password = string.Empty,
             Nombre = "Nuevo",
             Mail = "nuevo@mail.com",
-            IdRol = 1,
+            Id_Rol = 1,
             Activo = true
         };
 
