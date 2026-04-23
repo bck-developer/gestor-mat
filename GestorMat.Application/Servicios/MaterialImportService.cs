@@ -19,7 +19,7 @@ public class MaterialImportService
     {
         var resultado = new MaterialImportResultDto();
 
-        var unidades = (await _unidadRepo.ObtenerTodosAsync())
+        var unidades = (await _unidadRepo.ObtenerTodosAsync(false))
             .ToDictionary(u => u.Nombre.ToLower());
 
         foreach (var row in filas)

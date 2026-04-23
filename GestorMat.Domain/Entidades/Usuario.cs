@@ -5,28 +5,28 @@ namespace GestorMat.Domain.Entidades;
 public class Usuario
 {
     [Key]
-    public int Id_Usuario { get; private set; }
+    public int Id_Usuario { get;set; }
 
     [StringLength(14, MinimumLength = 3)]
-    public string Username { get; private set; }
+    public string Username { get;set; }
 
     [StringLength(255)]
-    public string PasswordHash { get; private set; }
+    public string PasswordHash { get;set; }
 
     [StringLength(60)]
-    public string Nombre { get; private set; }
+    public string Nombre { get;set; }
 
     [StringLength(100)]
     [EmailAddress]
-    public string Mail { get; private set; }
+    public string Mail { get;set; }
 
-    public DateTime FechaAlta { get; private set; }
+    public DateTime FechaAlta { get;set; }
 
-    public int IdRol { get; private set; }
+    public int IdRol { get;set; }
 
-    public bool Activo { get; private set; }
+    public bool Activo { get;set; }
 
-    public Rol Rol { get; private set; }
+    public Rol Rol { get;set; }
 
     private Usuario() { }
 

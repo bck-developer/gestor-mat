@@ -19,7 +19,7 @@
         @(descargando ? "Descargando..." : "📥 Plantilla Excel")
     </button>
 
-    <label class="btn btn-outline-primary">
+    <label class="btn btn-secondary">
         📤 Cargar Excel
         <InputFile OnChange="SubirExcel" hidden />
     </label>
@@ -53,6 +53,7 @@ else if (string.IsNullOrEmpty(error))
             <table class="table table-striped table-hover">
                 <thead>
                     <tr>
+                        <th>Código</th>
                         <th>Nombre</th>
                         <th>Precio</th>
                         <th>Unidad</th>
@@ -63,6 +64,7 @@ else if (string.IsNullOrEmpty(error))
                     @foreach (MaterialDto mat in materiales)
                     {
                         <tr>
+                            <td>@mat.CodigoMaterial</td>
                             <td>@mat.Nombre</td>
                             <td>$@mat.Precio.ToString("N2")</td>
                             <td>@mat.UnidadMedida</td>

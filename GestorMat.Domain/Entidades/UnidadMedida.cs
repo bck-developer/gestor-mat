@@ -5,16 +5,15 @@ namespace GestorMat.Domain.Entidades;
 public class UnidadMedida
 {
     [Key]
-    public int Id_UnidadMedida { get; private set; }
+    public int Id_UnidadMedida { get; set; }
 
     [StringLength(30)]
-    public string Nombre { get; private set; }
+    public string Nombre { get; set; }
 
     [StringLength(10)]
-    public string Abreviatura { get; private set; }
+    public string Abreviatura { get; set; }
 
-    public bool Activo { get; private set; }
-
+    public bool Activo { get; set; }
 
     public UnidadMedida(string nombre, string abreviatura, bool activo)
     {
@@ -27,15 +26,6 @@ public class UnidadMedida
         Nombre = nombre;
         Abreviatura = abreviatura;
         Activo = activo;
-    }
-
-    public void Desactivar()
-    {
-        Activo = false;
-    }
-    public void Activar()
-    {
-        Activo = true;
     }
 
     public void ActualizarDatos(string nombre, string abreviatura, bool activo)

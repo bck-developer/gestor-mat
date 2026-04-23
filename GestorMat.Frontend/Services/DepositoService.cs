@@ -1,23 +1,7 @@
+using GestorMat.Frontend.Pages.Modulo_Materiales.ABMs.Depositos;
 using System.Net.Http.Json;
 
 namespace GestorMat.Frontend.Services;
-
-public class DepositoDto
-{
-    public int Id_Deposito { get; set; }
-    public string CodigoDeposito { get; set; } = string.Empty;
-    public string Nombre { get; set; } = string.Empty;
-    public string Direccion { get; set; } = string.Empty;
-    public bool Habilitado { get; set; }
-}
-
-public class CrearDepositoDto
-{
-    public string CodigoDeposito { get; set; } = string.Empty;
-    public string Nombre { get; set; } = string.Empty;
-    public string Direccion { get; set; } = string.Empty;
-    public bool Habilitado { get; set; } = true;
-}
 
 public class DepositoService(AuthHttpClient authHttp)
 {

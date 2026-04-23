@@ -123,6 +123,8 @@ else
             ?? new List<DepositoDto>();
 
         cargando = false;
+
+        await Buscar();
     }
 
     private async Task Buscar()

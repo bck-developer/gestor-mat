@@ -5,19 +5,19 @@ namespace GestorMat.Domain.Entidades;
 public class Rol
 {
     [Key]
-    public int Id_Rol { get; private set; }
+    public int Id_Rol { get; set; }
 
     [StringLength(30)]
-    public string RolName { get; private set; }
+    public string RolName { get; set; }
 
     [StringLength(100)]
-    public string Descripcion { get; private set; }
+    public string Descripcion { get; set; }
 
-    public bool AccesoTotal { get; private set; }
+    public bool AccesoTotal { get; set; }
 
-    public ICollection<Usuario> Usuarios { get; private set; }
+    public ICollection<Usuario> Usuarios { get; set; }
 
-    private Rol() { }
+    public Rol() { }
 
     public Rol(string rolName, string descripcion, bool accesoTotal)
     {

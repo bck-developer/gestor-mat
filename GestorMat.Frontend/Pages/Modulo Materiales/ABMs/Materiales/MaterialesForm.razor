@@ -132,7 +132,7 @@ else
         {
             var client = await AuthHttpClient.GetClient();
 
-            unidades = await client.GetFromJsonAsync<List<UnidadMedidaDto>>("api/unidadmedida")
+            unidades = await client.GetFromJsonAsync<List<UnidadMedidaDto>>("api/unidadmedida?soloActivos=true")
                        ?? new List<UnidadMedidaDto>();
 
             if (Id != 0)

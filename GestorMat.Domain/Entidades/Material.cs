@@ -1,11 +1,11 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System;
+using System.ComponentModel.DataAnnotations;
 
 namespace GestorMat.Domain.Entidades;
 
 public class Material
 {
-    [Key]
-    public int Id_Material { get; private set; }
+    public int Id_Material { get; set; }
 
     [StringLength(30)]
     public string CodigoMaterial { get; private set; } = string.Empty;

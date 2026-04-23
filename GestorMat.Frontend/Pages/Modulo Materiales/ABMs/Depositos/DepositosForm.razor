@@ -17,30 +17,30 @@ else
         <div class="card">
             <div class="card-body">
                 <EditForm Model="modelo" OnSubmit="Guardar">
-                    <DataAnnotationsValidator />
-                    <ValidationSummary />
-
+                    @*        //  <DataAnnotationsValidator />
+            @*         <ValidationSummary />
+ *@
                     <div class="form-group">
                         <label for="codigoDeposito">Código de Depósito:</label>
                         <InputText id="codigoDeposito" class="form-control" @bind-Value="modelo.CodigoDeposito" />
-                        <ValidationMessage For="@(() => modelo.CodigoDeposito)" class="text-danger" />
+@*                        // <ValidationMessage For="@(() => modelo.CodigoDeposito)" class="text-danger" /> *@
                     </div>
 
                     <div class="form-group">
                         <label for="nombre">Nombre:</label>
                         <InputText id="nombre" class="form-control" @bind-Value="modelo.Nombre" />
-                        <ValidationMessage For="@(() => modelo.Nombre)" class="text-danger" />
+        @*                // <ValidationMessage For="@(() => modelo.Nombre)" class="text-danger" /> *@
                     </div>
 
                     <div class="form-group">
                         <label for="direccion">Dirección:</label>
                         <InputText id="direccion" class="form-control" @bind-Value="modelo.Direccion" />
-                        <ValidationMessage For="@(() => modelo.Direccion)" class="text-danger" />
+                  @*     //  <ValidationMessage For="@(() => modelo.Direccion)" class="text-danger" /> *@
                     </div>
 
                     <div class="form-group">
                         <label for="habilitado">
-                            <InputCheckbox id="habilitado" @bind-Value="modelo.Habilitado" />
+                            <InputCheckbox id="habilitado" @bind-Value="modelo.Habilitado" disabled=@(Id != 0) />
                             Habilitado
                         </label>
                     </div>
