@@ -72,7 +72,7 @@ else
                 <th>Depósito</th>
                 <th>UM</th>
                 <th>Disponible</th>
-                <th>Mínimo</th>
+                <th>Mínimo Stock Permitido</th>
                 <th>Diferencia</th>
                 <th>Últ. Movimiento</th>
             </tr>
@@ -164,9 +164,9 @@ else
         HttpClient client = await AuthHttpClient.GetClient();
 
         string url =
-    $"api/saldo?idMaterial={filtroMaterial}&idDeposito={filtroDeposito}" +
-    $"&incluirMaterialesInactivos={incluyeMatInactivos}" +
-    $"&incluirDepositosInactivos={incluyeDepInactivos}";
+            $"api/saldo/pdf?idMaterial={filtroMaterial}&idDeposito={filtroDeposito}" +
+            $"&incluirMaterialesInactivos={incluyeMatInactivos}" +
+            $"&incluirDepositosInactivos={incluyeDepInactivos}";
 
         byte[] fileBytes = await client.GetByteArrayAsync(url);
 
