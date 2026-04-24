@@ -1,7 +1,6 @@
-using Xunit;
+using GestorMat.Application.DTOs;
 using GestorMat.Application.Servicios;
-using System.Xml.Linq;
-using System.IO;
+using Xunit;
 
 namespace GestorMat.Tests.GestorMat.ApplicationTest.Servicios;
 
@@ -31,8 +30,8 @@ public class XmlServiceTests
                 </Material>
             </Root>";
 
-        using var stream = new MemoryStream();
-        using (var writer = new StreamWriter(stream, leaveOpen: true))
+        using MemoryStream stream = new MemoryStream();
+        using (StreamWriter writer = new StreamWriter(stream, leaveOpen: true))
         {
             writer.Write(xml);
             writer.Flush();
@@ -40,7 +39,7 @@ public class XmlServiceTests
         stream.Position = 0;
 
         // Act
-        var resultado = _service.LeerMaterialesDesdeXml(stream);
+        List<MaterialXmlDto> resultado = _service.LeerMaterialesDesdeXml(stream);
 
         // Assert
         Assert.NotNull(resultado);
@@ -65,8 +64,8 @@ public class XmlServiceTests
                 </Material>
             </Root>";
 
-        using var stream = new MemoryStream();
-        using (var writer = new StreamWriter(stream, leaveOpen: true))
+        using MemoryStream stream = new MemoryStream();
+        using (StreamWriter writer = new StreamWriter(stream, leaveOpen: true))
         {
             writer.Write(xml);
             writer.Flush();
@@ -74,7 +73,7 @@ public class XmlServiceTests
         stream.Position = 0;
 
         // Act
-        var resultado = _service.LeerMaterialesDesdeXml(stream);
+        List<MaterialXmlDto> resultado = _service.LeerMaterialesDesdeXml(stream);
 
         // Assert
         Assert.Single(resultado);
@@ -92,8 +91,8 @@ public class XmlServiceTests
             <Root>
             </Root>";
 
-        using var stream = new MemoryStream();
-        using (var writer = new StreamWriter(stream, leaveOpen: true))
+        using MemoryStream stream = new MemoryStream();
+        using (StreamWriter writer = new StreamWriter(stream, leaveOpen: true))
         {
             writer.Write(xml);
             writer.Flush();
@@ -101,7 +100,7 @@ public class XmlServiceTests
         stream.Position = 0;
 
         // Act
-        var resultado = _service.LeerMaterialesDesdeXml(stream);
+        List<MaterialXmlDto> resultado = _service.LeerMaterialesDesdeXml(stream);
 
         // Assert
         Assert.NotNull(resultado);
@@ -119,8 +118,8 @@ public class XmlServiceTests
                 </Material>
             </Root>";
 
-        using var stream = new MemoryStream();
-        using (var writer = new StreamWriter(stream, leaveOpen: true))
+        using MemoryStream stream = new MemoryStream();
+        using (StreamWriter writer = new StreamWriter(stream, leaveOpen: true))
         {
             writer.Write(xml);
             writer.Flush();
@@ -128,7 +127,7 @@ public class XmlServiceTests
         stream.Position = 0;
 
         // Act
-        var resultado = _service.LeerMaterialesDesdeXml(stream);
+        List<MaterialXmlDto> resultado = _service.LeerMaterialesDesdeXml(stream);
 
         // Assert
         Assert.Single(resultado);
@@ -164,8 +163,8 @@ public class XmlServiceTests
                 </Material>
             </Root>";
 
-        using var stream = new MemoryStream();
-        using (var writer = new StreamWriter(stream, leaveOpen: true))
+        using MemoryStream stream = new MemoryStream();
+        using (StreamWriter writer = new StreamWriter(stream, leaveOpen: true))
         {
             writer.Write(xml);
             writer.Flush();
@@ -173,7 +172,7 @@ public class XmlServiceTests
         stream.Position = 0;
 
         // Act
-        var resultado = _service.LeerMaterialesDesdeXml(stream);
+        List<MaterialXmlDto> resultado = _service.LeerMaterialesDesdeXml(stream);
 
         // Assert
         Assert.Equal(3, resultado.Count);
@@ -195,8 +194,8 @@ public class XmlServiceTests
                 </Material>
             </Root>";
 
-        using var stream = new MemoryStream();
-        using (var writer = new StreamWriter(stream, leaveOpen: true))
+        using MemoryStream stream = new MemoryStream();
+        using (StreamWriter writer = new StreamWriter(stream, leaveOpen: true))
         {
             writer.Write(xml);
             writer.Flush();
@@ -204,7 +203,7 @@ public class XmlServiceTests
         stream.Position = 0;
 
         // Act
-        var resultado = _service.LeerMaterialesDesdeXml(stream);
+        List<MaterialXmlDto> resultado = _service.LeerMaterialesDesdeXml(stream);
 
         // Assert
         Assert.Single(resultado);
@@ -225,8 +224,8 @@ public class XmlServiceTests
                 </Material>
             </Root>";
 
-        using var stream = new MemoryStream();
-        using (var writer = new StreamWriter(stream, leaveOpen: true))
+        using MemoryStream stream = new MemoryStream();
+        using (StreamWriter writer = new StreamWriter(stream, leaveOpen: true))
         {
             writer.Write(xml);
             writer.Flush();
@@ -234,7 +233,7 @@ public class XmlServiceTests
         stream.Position = 0;
 
         // Act
-        var resultado = _service.LeerMaterialesDesdeXml(stream);
+        List<MaterialXmlDto> resultado = _service.LeerMaterialesDesdeXml(stream);
 
         // Assert
         Assert.Single(resultado);
@@ -255,8 +254,8 @@ public class XmlServiceTests
                 </Material>
             </Root>";
 
-        using var stream = new MemoryStream();
-        using (var writer = new StreamWriter(stream, leaveOpen: true))
+        using MemoryStream stream = new MemoryStream();
+        using (StreamWriter writer = new StreamWriter(stream, leaveOpen: true))
         {
             writer.Write(xml);
             writer.Flush();
@@ -264,7 +263,7 @@ public class XmlServiceTests
         stream.Position = 0;
 
         // Act
-        var resultado = _service.LeerMaterialesDesdeXml(stream);
+        List<MaterialXmlDto> resultado = _service.LeerMaterialesDesdeXml(stream);
 
         // Assert
         Assert.Single(resultado);

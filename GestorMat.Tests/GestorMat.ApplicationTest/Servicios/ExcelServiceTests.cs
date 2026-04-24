@@ -16,7 +16,7 @@ public class ExcelServiceTests
     public void GenerarPlantillaMateriales_DebeGenerarArchivoValido()
     {
         // Arrange
-        List<string> unidades = new() { "Kilogramo", "Litro", "Metro", "Unidad" };
+        List<string> unidades = ["Kilogramo", "Litro", "Metro", "Unidad"];
 
         // Act
         byte[] resultado = _service.GenerarPlantillaMateriales(unidades);
@@ -31,14 +31,14 @@ public class ExcelServiceTests
     public void GenerarPlantillaMateriales_DebeContenerEncabezados()
     {
         // Arrange
-        List<string> unidades = new() { "Kilogramo", "Litro" };
+        List<string> unidades = ["Kilogramo", "Litro"];
 
         // Act
         byte[] resultado = _service.GenerarPlantillaMateriales(unidades);
 
         // Assert
-        using var stream = new MemoryStream(resultado);
-        using var workbook = new XLWorkbook(stream);
+        using MemoryStream stream = new(resultado);
+        using XLWorkbook workbook = new(stream);
         var worksheet = workbook.Worksheet(1);
 
         Assert.Equal("Código Material", worksheet.Cell(1, 1).GetString());
@@ -55,7 +55,7 @@ public class ExcelServiceTests
     public void GenerarPlantillaMateriales_DebeIncluirHojaDeUnidades()
     {
         // Arrange
-        List<string> unidades = new() { "Kilogramo", "Litro", "Metro" };
+        List<string> unidades = ["Kilogramo", "Litro", "Metro"];
 
         // Act
         byte[] resultado = _service.GenerarPlantillaMateriales(unidades);
@@ -72,7 +72,7 @@ public class ExcelServiceTests
     public void GenerarPlantillaMateriales_ConUnidadesVacias_DebeGenerarArchivo()
     {
         // Arrange
-        List<string> unidades = new();
+        List<string> unidades = [];
 
         // Act
         byte[] resultado = _service.GenerarPlantillaMateriales(unidades);
@@ -90,8 +90,8 @@ public class ExcelServiceTests
     public void LeerExcelMateriales_ConArchivoValido_DebeExtraerDatos()
     {
         // Arrange
-        using var ms = new MemoryStream();
-        using (var wb = new XLWorkbook())
+        using MemoryStream ms = new MemoryStream();
+        using (XLWorkbook wb = new XLWorkbook())
         {
             var ws = wb.Worksheets.Add("Materiales");
             ws.Cell(1, 1).Value = "Código Material";
@@ -117,7 +117,7 @@ public class ExcelServiceTests
         ms.Position = 0;
 
         // Act
-        var resultado = _service.LeerExcelMateriales(ms);
+       List<MaterialExcelRowDto> resultado= _service.LeerExcelMateriales(ms);
 
         // Assert
         Assert.NotNull(resultado);
@@ -132,8 +132,8 @@ public class ExcelServiceTests
     public void LeerExcelMateriales_ConMultipleFilas_DebeExtraerTodas()
     {
         // Arrange
-        using var ms = new MemoryStream();
-        using (var wb = new XLWorkbook())
+        using MemoryStream ms = new MemoryStream();
+        using (XLWorkbook wb = new XLWorkbook())
         {
             var ws = wb.Worksheets.Add("Materiales");
             ws.Cell(1, 1).Value = "Código Material";
@@ -162,7 +162,7 @@ public class ExcelServiceTests
         ms.Position = 0;
 
         // Act
-        var resultado = _service.LeerExcelMateriales(ms);
+        List<MaterialExcelRowDto> resultado = _service.LeerExcelMateriales(ms);
 
         // Assert
         Assert.Equal(4, resultado.Count);
@@ -173,8 +173,8 @@ public class ExcelServiceTests
     public void LeerExcelMateriales_ConFilasVacias_NoDebeIncluirlas()
     {
         // Arrange
-        using var ms = new MemoryStream();
-        using (var wb = new XLWorkbook())
+        using MemoryStream ms = new MemoryStream();
+        using (XLWorkbook wb = new XLWorkbook())
         {
             var ws = wb.Worksheets.Add("Materiales");
             ws.Cell(1, 1).Value = "Código Material";
@@ -211,7 +211,7 @@ public class ExcelServiceTests
         ms.Position = 0;
 
         // Act
-        var resultado = _service.LeerExcelMateriales(ms);
+        List<MaterialExcelRowDto> resultado= _service.LeerExcelMateriales(ms);
 
         // Assert
         Assert.Equal(2, resultado.Count);
@@ -221,8 +221,8 @@ public class ExcelServiceTests
     public void LeerExcelMateriales_DebeAsignarNumeroDeFila()
     {
         // Arrange
-        using var ms = new MemoryStream();
-        using (var wb = new XLWorkbook())
+        using MemoryStream ms = new MemoryStream();
+        using (XLWorkbook wb = new XLWorkbook())
         {
             var ws = wb.Worksheets.Add("Materiales");
             ws.Cell(1, 1).Value = "Código Material";
@@ -248,7 +248,7 @@ public class ExcelServiceTests
         ms.Position = 0;
 
         // Act
-        var resultado = _service.LeerExcelMateriales(ms);
+        List<MaterialExcelRowDto> resultado = _service.LeerExcelMateriales(ms);
 
         // Assert
         Assert.Equal(2, resultado[0].Fila);

@@ -46,7 +46,7 @@ public class MaterialImportServiceTests
         };
 
         // Act
-        var resultado = await _service.ImportarAsync(filas);
+        MaterialImportResultDto resultado= await _service.ImportarAsync(filas);
 
         // Assert
         Assert.Equal(1, resultado.TotalProcesados);
@@ -94,7 +94,7 @@ public class MaterialImportServiceTests
         };
 
         // Act
-        var resultado = await _service.ImportarAsync(filas);
+        MaterialImportResultDto resultado= await _service.ImportarAsync(filas);
 
         // Assert
         Assert.Equal(2, resultado.TotalProcesados);
@@ -129,7 +129,7 @@ public class MaterialImportServiceTests
         };
 
         // Act
-        var resultado = await _service.ImportarAsync(filas);
+        MaterialImportResultDto resultado= await _service.ImportarAsync(filas);
 
         // Assert
         Assert.Equal(1, resultado.TotalProcesados);
@@ -165,7 +165,7 @@ public class MaterialImportServiceTests
         };
 
         // Act
-        var resultado = await _service.ImportarAsync(filas);
+        MaterialImportResultDto resultado= await _service.ImportarAsync(filas);
 
         // Assert
         Assert.Equal(1, resultado.Fallidos);
@@ -199,7 +199,7 @@ public class MaterialImportServiceTests
         };
 
         // Act
-        var resultado = await _service.ImportarAsync(filas);
+        MaterialImportResultDto resultado= await _service.ImportarAsync(filas);
 
         // Assert
         Assert.Equal(1, resultado.Fallidos);
@@ -233,7 +233,7 @@ public class MaterialImportServiceTests
         };
 
         // Act
-        var resultado = await _service.ImportarAsync(filas);
+        MaterialImportResultDto resultado= await _service.ImportarAsync(filas);
 
         // Assert
         Assert.Equal(1, resultado.Fallidos);
@@ -267,7 +267,7 @@ public class MaterialImportServiceTests
         };
 
         // Act
-        var resultado = await _service.ImportarAsync(filas);
+        MaterialImportResultDto resultado= await _service.ImportarAsync(filas);
 
         // Assert
         Assert.Equal(1, resultado.Fallidos);
@@ -301,7 +301,7 @@ public class MaterialImportServiceTests
         };
 
         // Act
-        var resultado = await _service.ImportarAsync(filas);
+        MaterialImportResultDto resultado= await _service.ImportarAsync(filas);
 
         // Assert
         Assert.Equal(1, resultado.Fallidos);
@@ -334,7 +334,7 @@ public class MaterialImportServiceTests
         };
 
         // Act
-        var resultado = await _service.ImportarAsync(filas);
+        MaterialImportResultDto resultado= await _service.ImportarAsync(filas);
 
         // Assert
         Assert.Equal(1, resultado.Fallidos);
@@ -369,7 +369,7 @@ public class MaterialImportServiceTests
         };
 
         // Act
-        var resultado = await _service.ImportarAsync(filas);
+        MaterialImportResultDto resultado= await _service.ImportarAsync(filas);
 
         // Assert
         Assert.Equal(1, resultado.Fallidos);
@@ -402,7 +402,7 @@ public class MaterialImportServiceTests
         };
 
         // Act
-        var resultado = await _service.ImportarAsync(filas);
+        MaterialImportResultDto resultado= await _service.ImportarAsync(filas);
 
         // Assert
         Assert.Equal(1, resultado.Fallidos);
@@ -447,7 +447,7 @@ public class MaterialImportServiceTests
         };
 
         // Act
-        var resultado = await _service.ImportarAsync(filas);
+        MaterialImportResultDto resultado = await _service.ImportarAsync(filas);
 
         // Assert
         Assert.Equal(2, resultado.TotalProcesados);
