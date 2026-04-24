@@ -42,7 +42,7 @@ public class AuthServiceTests
         _hasher.Setup(h => h.Verify("Password123", "hashedPassword")).Returns(true);
 
         // Act
-        var token = await _service.LoginAsync(dto);
+        string token = await _service.LoginAsync(dto);
 
         // Assert
         Assert.NotNull(token);
@@ -59,7 +59,7 @@ public class AuthServiceTests
         _repository.Setup(r => r.ObtenerPorUsernameAsync("noexiste")).ReturnsAsync((Usuario?)null);
 
         // Act & Assert
-        var excepcion = await Assert.ThrowsAsync<Exception>(() => _service.LoginAsync(dto));
+        Exception? excepcion = await Assert.ThrowsAsync<Exception>(() => _service.LoginAsync(dto));
         Assert.Equal("Usuario no encontrado", excepcion.Message);
     }
 
@@ -80,7 +80,7 @@ public class AuthServiceTests
         _hasher.Setup(h => h.Verify("WrongPassword", "hashedPassword")).Returns(false);
 
         // Act & Assert
-        var excepcion = await Assert.ThrowsAsync<Exception>(() => _service.LoginAsync(dto));
+        Exception? excepcion = await Assert.ThrowsAsync<Exception>(() => _service.LoginAsync(dto));
         Assert.Equal("Password incorrecta", excepcion.Message);
     }
 
@@ -101,7 +101,7 @@ public class AuthServiceTests
         _hasher.Setup(h => h.Verify("Pass123", "hashedPassword")).Returns(true);
 
         // Act
-        var token = await _service.LoginAsync(dto);
+        string  token = await _service.LoginAsync(dto);
 
         // Assert
         Assert.NotNull(token);
@@ -125,7 +125,7 @@ public class AuthServiceTests
         _hasher.Setup(h => h.Verify("Password123", "hashedPassword")).Returns(true);
 
         // Act
-        var token = await _service.LoginAsync(dto);
+        string token = await _service.LoginAsync(dto);
 
         // Assert
         Assert.NotNull(token);

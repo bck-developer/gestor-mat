@@ -153,7 +153,7 @@ public class MovimientoMaterialServiceTests
         };
 
         // Act & Assert
-        var excepcion = await Assert.ThrowsAsync<Exception>(() => _service.CrearAsync(dto));
+        Exception? excepcion = await Assert.ThrowsAsync<Exception>(() => _service.CrearAsync(dto));
         Assert.Contains("Tipo de movimiento inválido", excepcion.Message);
         _unitOfWork.Verify(u => u.RollbackAsync(), Times.Once);
     }
@@ -178,7 +178,7 @@ public class MovimientoMaterialServiceTests
             .ThrowsAsync(new Exception("Error en base de datos"));
 
         // Act & Assert
-        var excepcion = await Assert.ThrowsAsync<Exception>(() => _service.CrearAsync(dto));
+        Exception? excepcion = await Assert.ThrowsAsync<Exception>(() => _service.CrearAsync(dto));
         _unitOfWork.Verify(u => u.RollbackAsync(), Times.Once);
         _unitOfWork.Verify(u => u.CommitAsync(), Times.Never);
     }
@@ -204,7 +204,7 @@ public class MovimientoMaterialServiceTests
         _movRepository.Setup(r => r.ObtenerTodosAsync()).ReturnsAsync(movimientos);
 
         // Act
-        var resultado = await _service.ObtenerTodosAsync();
+        MaterialImportResultDto resultado= await _service.ObtenerTodosAsync();
 
         // Assert
         Assert.NotNull(resultado);
@@ -218,7 +218,7 @@ public class MovimientoMaterialServiceTests
         _movRepository.Setup(r => r.ObtenerTodosAsync()).ReturnsAsync(new List<MovimientoMaterial>());
 
         // Act
-        var resultado = await _service.ObtenerTodosAsync();
+        MaterialImportResultDto resultado= await _service.ObtenerTodosAsync();
 
         // Assert
         Assert.NotNull(resultado);
