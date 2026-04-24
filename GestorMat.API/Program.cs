@@ -1,3 +1,4 @@
+using GestorMat.Application.Configuracion;
 using GestorMat.Application.Interfaces;
 using GestorMat.Application.Servicios;
 using GestorMat.Infrastructure.Persistencia;
@@ -12,6 +13,9 @@ using System.Text;
 
 
 var builder = WebApplication.CreateBuilder(args);
+
+// Mapster Configuration
+MappingConfig.RegisterMappings();
 
 // Controllers
 builder.Services.AddControllers();

@@ -1,6 +1,7 @@
 using GestorMat.Application.DTOs;
 using GestorMat.Application.Interfaces;
 using GestorMat.Domain.Entidades;
+using Mapster;
 
 namespace GestorMat.Application.Servicios;
 
@@ -37,16 +38,7 @@ public class UsuarioService(IUsuarioRepository repository, IPasswordHasher hashe
     public async Task<List<UsuarioDto>> ObtenerTodosAsyncService()
     {
         IEnumerable<Usuario> usuarios = await repository.ObtenerTodosAsync();
-
-        return usuarios.Select(u => new UsuarioDto
-        {
-            Id_Usuario = u.Id_Usuario,
-            Username = u.Username,
-            Nombre = u.Nombre,
-            Mail = u.Mail,
-            Rol = u.Rol?.RolName ?? string.Empty,
-            Activo = u.Activo
-        }).ToList();
+        return usuarios.Adapt<List<UsuarioDto>>();
     }
 
     // 3 - OBTENER POR ID

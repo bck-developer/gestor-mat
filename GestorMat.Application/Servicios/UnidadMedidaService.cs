@@ -1,6 +1,7 @@
 using GestorMat.Application.DTOs;
 using GestorMat.Application.Interfaces;
 using GestorMat.Domain.Entidades;
+using Mapster;
 
 namespace GestorMat.Application.Servicios;
 
@@ -15,27 +16,8 @@ public class UnidadMedidaService(IUnidadMedidaRepository repository)
     public async Task<List<UnidadMedidaDto>> ObtenerTodosAsyncService(bool soloActivos)
     {
         List<UnidadMedida> unidades = await repository.ObtenerTodosAsync(soloActivos);
-
-        if (soloActivos)
-        {
-            return [.. unidades.Select(u => new UnidadMedidaDto
-            {
-                Id_UnidadMedida = u.Id_UnidadMedida,
-                Nombre = u.Nombre,
-                Abreviatura = u.Abreviatura,
-                Activo = u.Activo
-            }).Where(u => u.Activo)];
-        }
-        else
-        {
-            return [.. unidades.Select(u => new UnidadMedidaDto
-            {
-                Id_UnidadMedida = u.Id_UnidadMedida,
-                Nombre = u.Nombre,
-                Abreviatura = u.Abreviatura,
-                Activo = u.Activo
-            })];
-        }      
+        var resultado = unidades.Adapt<List<UnidadMedidaDto>>();
+        return soloActivos ? [.. resultado.Where(u => u.Activo)] : resultado;
     }
 
     public async Task<UnidadMedida?> ObtenerPorIdAsyncService(int id)

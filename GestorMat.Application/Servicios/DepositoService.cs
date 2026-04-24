@@ -1,6 +1,7 @@
 using GestorMat.Application.DTOs;
 using GestorMat.Application.Interfaces;
 using GestorMat.Domain.Entidades;
+using Mapster;
 
 namespace GestorMat.Application.Servicios;
 
@@ -15,38 +16,13 @@ public class DepositoService(IDepositoRepository depositoRepository)
     public async Task<List<DepositoDto>> ObtenerDepositosAsync()
     {
         IEnumerable<Deposito> depositos = await depositoRepository.ObtenerTodosAsync();
-
-        List<DepositoDto> resultado = depositos.Select(d => new DepositoDto
-        {
-            Id_Deposito = d.Id_Deposito,
-            CodigoDeposito = d.CodigoDeposito,
-            Nombre = d.Nombre,
-            Direccion = d.Direccion,
-            Habilitado = d.Habilitado
-        }).ToList();
-
-        return resultado;
+        return depositos.Adapt<List<DepositoDto>>();
     }
 
     public async Task<DepositoDto?> ObtenerDepositoPorIdAsync(int id)
     {
         Deposito? deposito = await depositoRepository.ObtenerPorIdAsync(id);
-
-        if (deposito == null)
-        {
-            return null;
-        }
-
-        DepositoDto resultado = new DepositoDto
-        {
-            Id_Deposito = deposito.Id_Deposito,
-            CodigoDeposito = deposito.CodigoDeposito,
-            Nombre = deposito.Nombre,
-            Direccion = deposito.Direccion,
-            Habilitado = deposito.Habilitado
-        };
-
-        return resultado;
+        return deposito?.Adapt<DepositoDto>();
     }
 
     public async Task EditarDepositoAsync(int id, CrearDepositoDto dto)

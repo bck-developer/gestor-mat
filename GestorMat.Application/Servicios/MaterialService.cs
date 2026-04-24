@@ -1,6 +1,7 @@
 using GestorMat.Application.DTOs.Material;
 using GestorMat.Application.Interfaces;
 using GestorMat.Domain.Entidades;
+using Mapster;
 
 namespace GestorMat.Application.Servicios;
 
@@ -27,42 +28,14 @@ public class MaterialService(IMaterialRepository repository)
     public async Task<List<MaterialDto>> ObtenerTodosAsyncService()
     {
         var materiales = await repository.ObtenerTodosAsync();
-
-        return materiales.Select(m => new MaterialDto
-        {
-            Id_Material = m.Id_Material,
-            CodigoMaterial = m.CodigoMaterial,
-            Nombre = m.Nombre,
-            Precio = m.Precio,
-            UnidadMedida = m.UnidadMedida.Nombre,
-            Descripcion = m.Descripcion,
-            PermiteStockNegativo = m.PermiteStockNegativo,
-            StockMinimo = m.StockMinimo,
-            Activo = m.Activo,
-        }).ToList();
+        return materiales.Adapt<List<MaterialDto>>();
     }
 
     // OBTENER POR ID
     public async Task<MaterialDto?> ObtenerPorIdAsyncService(int id)
     {
         Material? m = await repository.ObtenerPorIdAsync(id);
-
-        if (m == null)
-            return null;
-
-        return new MaterialDto
-        {
-            Id_Material = m.Id_Material,
-            CodigoMaterial = m.CodigoMaterial,
-            Nombre = m.Nombre,
-            Precio = m.Precio,
-            UnidadMedida = m.UnidadMedida.Nombre,
-            Descripcion = m.Descripcion,
-            PermiteStockNegativo = m.PermiteStockNegativo,
-            StockMinimo = m.StockMinimo,
-            Activo = m.Activo,
-            Id_UnidadMedida = m.Id_UnidadMedida
-        };
+        return m?.Adapt<MaterialDto>();
     }
 
     // ACTUALIZAR

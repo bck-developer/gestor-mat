@@ -1,6 +1,7 @@
 ﻿using GestorMat.Application.DTOs.MovimientoMaterial;
 using GestorMat.Application.Interfaces;
 using GestorMat.Domain.Entidades;
+using Mapster;
 
 public class MovimientoMaterialService(
     IMovimientoMaterialRepository movRepo,
@@ -93,19 +94,7 @@ public class MovimientoMaterialService(
     public async Task<List<MovimientoMaterialDto>> ObtenerTodosAsync()
     {
         List<MovimientoMaterial> lista = await movRepo.ObtenerTodosAsync();
-
-        return lista.Select(x => new MovimientoMaterialDto
-        {
-            Id_MovimientoMaterial = x.Id_MovimientoMaterial,
-            CodigoMovimiento = x.CodigoMovimiento,
-            Tipo = x.Tipo,
-            Cantidad = x.Cantidad,
-            Fecha = x.Fecha,
-            Id_Material = x.Id_Material,
-            Id_DepositoOrigen = x.Id_DepositoOrigen,
-            Id_DepositoDestino = x.Id_DepositoDestino,
-            UserName = x.UserName
-        }).ToList();
+        return lista.Adapt<List<MovimientoMaterialDto>>();
     }
 
     public async Task<MovimientoMaterial?> ObtenerPorIdAsyncService(int id) =>
