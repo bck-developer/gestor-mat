@@ -4,7 +4,7 @@ namespace GestorMat.Application.DTOs.Material;
 
 public class MaterialDto
 {
-    public int Id_Material { get; internal set; }
+    public int Id_Material { get; set; }
     public string CodigoMaterial { get; set; } = "";
     public string Nombre { get; set; } = "";
     public decimal Precio { get; set; }
