@@ -72,7 +72,7 @@ public class UsuarioServiceTests
         CrearUsuarioDto dto = new()
         {
             Username = "jdoe",
-            Password = null,
+            Password = string.Empty,
             Nombre = "John Doe",
             Mail = "john@example.com",
             Id_Rol = 1,

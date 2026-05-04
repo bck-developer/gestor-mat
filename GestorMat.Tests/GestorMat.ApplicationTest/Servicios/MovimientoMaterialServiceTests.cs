@@ -1,9 +1,10 @@
-using Xunit;
-using Moq;
-using GestorMat.Application.Servicios;
-using GestorMat.Application.Interfaces;
 using GestorMat.Application.DTOs.MovimientoMaterial;
+using GestorMat.Application.Interfaces;
 using GestorMat.Domain.Entidades;
+using Moq;
+using Xunit;
+
+namespace GestorMat.Tests.GestorMat.ApplicationTest.Servicios;
 
 public class MovimientoMaterialServiceTests
 {
@@ -191,7 +192,7 @@ public class MovimientoMaterialServiceTests
     public async Task ObtenerTodosAsync_ConMovimientosExistentes_DebeRetornarLista()
     {
         // Arrange
-        Material material = new("MAT001", "Acero", 50.00m, 1, true, string.Empty, false, 10) 
+        Material material = new("MAT001", "Acero", 50.00m, 1, true, string.Empty, false, 10)
         { Id_Material = 1 };
 
         Deposito deposito = new("DEP001", "Deposito 1", "Ubicación 1", true);
@@ -204,7 +205,7 @@ public class MovimientoMaterialServiceTests
         _movRepository.Setup(r => r.ObtenerTodosAsync()).ReturnsAsync(movimientos);
 
         // Act
-        MaterialImportResultDto resultado= await _service.ObtenerTodosAsync();
+        List<MovimientoMaterialDto> resultado = await _service.ObtenerTodosAsync();
 
         // Assert
         Assert.NotNull(resultado);
@@ -218,7 +219,7 @@ public class MovimientoMaterialServiceTests
         _movRepository.Setup(r => r.ObtenerTodosAsync()).ReturnsAsync(new List<MovimientoMaterial>());
 
         // Act
-        MaterialImportResultDto resultado= await _service.ObtenerTodosAsync();
+        List<MovimientoMaterialDto> resultado = await _service.ObtenerTodosAsync();
 
         // Assert
         Assert.NotNull(resultado);
